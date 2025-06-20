@@ -13,8 +13,8 @@ public class UsageController {
 
     @PostMapping("/publish")
     public ResponseEntity<UsageRecord> publish(
-        @RequestParam Long userId,
-        @RequestParam int usedKw
+            @RequestParam Long userId,
+            @RequestParam int usedKw
     ) {
         return ResponseEntity.ok(svc.recordUsage(userId, usedKw));
     }

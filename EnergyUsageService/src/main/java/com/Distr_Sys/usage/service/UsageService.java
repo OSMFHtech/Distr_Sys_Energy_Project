@@ -26,6 +26,6 @@ public class UsageService {
 
     public UsageRecord latestForUser(Long userId) {
         return repo.findTopByUserIdOrderByTimestampDesc(userId)
-                   .orElse(new UsageRecord(userId, Instant.now(), 0));
+                .orElse(new UsageRecord(userId, Instant.now(), 0));
     }
 }

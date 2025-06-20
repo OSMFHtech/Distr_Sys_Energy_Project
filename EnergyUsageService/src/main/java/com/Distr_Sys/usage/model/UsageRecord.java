@@ -13,11 +13,21 @@ public class UsageRecord {
     private Instant timestamp;
     private int usedKw;
 
+    @Enumerated(EnumType.STRING)
+    private UsageType type;
+
     public UsageRecord() {}
-    public UsageRecord(Long userId, Instant timestamp, int usedKw) {
+
+    public UsageRecord(Long userId, Instant timestamp, int usedKw, UsageType type) {
         this.userId = userId;
         this.timestamp = timestamp;
         this.usedKw = usedKw;
+        this.type = type;
+    }
+
+    // For backward compatibility
+    public UsageRecord(Long userId, Instant timestamp, int usedKw) {
+        this(userId, timestamp, usedKw, UsageType.USER);
     }
 
     public Long getId() { return id; }
@@ -27,4 +37,6 @@ public class UsageRecord {
     public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
     public int getUsedKw() { return usedKw; }
     public void setUsedKw(int usedKw) { this.usedKw = usedKw; }
+    public UsageType getType() { return type; }
+    public void setType(UsageType type) { this.type = type; }
 }
