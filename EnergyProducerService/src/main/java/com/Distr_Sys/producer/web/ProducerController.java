@@ -36,4 +36,12 @@ public class ProducerController {
                 "producedKw", rec.getKwh()
         ));
     }
+
+    // For local testing: triggers publish logic via GET
+    @GetMapping("/publish/test")
+    public ResponseEntity<Map<String, Object>> publishTest() {
+        ProductionRequest request = new ProductionRequest();
+        request.setProducedKw(5); // test value
+        return publish(request);
+    }
 }
