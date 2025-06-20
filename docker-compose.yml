@@ -1,0 +1,52 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  producer:
+    build: ./EnergyProducerService
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+
+  user:
+    build: ./EnergyUserService
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+
+  usage:
+    build: ./EnergyUsageService
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+
+  percentage:
+    build: ./EnergyPercentageService
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+
+  energy-api:
+    build: ./EnergyAPI
+    ports:
+      - "8080:8080"
+    depends_on:
+      - producer
+      - user
+      - usage
+      - percentage
+
+  energy-gui:
+    build: ./EnergyGUI
+    ports:
+      - "8085:8085"
+    depends_on:
+      - energy-api
