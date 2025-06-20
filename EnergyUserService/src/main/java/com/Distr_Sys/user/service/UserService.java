@@ -5,16 +5,14 @@ import com.Distr_Sys.user.model.ConsumptionRecord;
 import com.Distr_Sys.user.model.UserProfile;
 import com.Distr_Sys.user.repository.ConsumptionRepository;
 import com.Distr_Sys.user.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.Distr_Sys.common.EnergyMessage;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -23,7 +21,6 @@ public class UserService {
     private final UserRepository userRepo;
     private final ConsumptionRepository consRepo;
     private final RabbitTemplate rabbit;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final Random random = new Random();
 
     public UserService(UserRepository userRepo, ConsumptionRepository consRepo, RabbitTemplate rabbit) {
@@ -33,8 +30,7 @@ public class UserService {
     }
 
     public UserProfile createProfile(UserProfile profile) {
-        UserProfile saved = userRepo.save(profile);
-        return saved;
+        return userRepo.save(profile);
     }
 
     public Optional<UserProfile> findProfile(Long id) {
@@ -56,17 +52,16 @@ public class UserService {
         }
         ConsumptionRecord rec = new ConsumptionRecord(userId, kwh, now);
         rec = consRepo.save(rec);
-        try {
-            Map<String, Object> message = new HashMap<>();
-            message.put("type", "USER");
-            message.put("userId", userId);
-            message.put("kwh", rec.getKwh());
-            message.put("datetime", rec.getDatetime().toString());
-            String json = objectMapper.writeValueAsString(message);
-            rabbit.convertAndSend(RabbitConfig.EXCHANGE, RabbitConfig.ROUTING_KEY, json);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to serialize ConsumptionRecord", e);
-        }
+
+        // Send unified message
+        EnergyMessage msg = new EnergyMessage(
+                EnergyMessage.Type.USER,
+                "COMMUNITY",
+                rec.getKwh(),
+                Instant.now()
+        );
+        rabbit.convertAndSend(RabbitConfig.EXCHANGE, RabbitConfig.ROUTING_KEY, msg);
+
         return rec;
     }
 

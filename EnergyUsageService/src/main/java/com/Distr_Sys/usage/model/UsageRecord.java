@@ -6,7 +6,8 @@ import java.time.Instant;
 @Entity
 @Table(name = "usage_records")
 public class UsageRecord {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long userId;

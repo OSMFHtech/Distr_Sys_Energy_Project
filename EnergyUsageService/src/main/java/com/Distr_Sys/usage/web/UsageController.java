@@ -5,6 +5,8 @@ import com.Distr_Sys.usage.service.UsageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/usage")
 public class UsageController {
@@ -23,6 +25,11 @@ public class UsageController {
     public UsageRecord latest(@PathVariable Long userId) {
         return svc.latestForUser(userId);
     }
-}
 
+    // Aggregation endpoint
+    @GetMapping("/aggregate/by-type")
+    public Map<String, Integer> aggregateByType() {
+        return svc.aggregateUsageByType();
+    }
+}
 //  curl.exe -X POST "http://localhost:8183/usage/publish?userId=1&usedKw=10"
