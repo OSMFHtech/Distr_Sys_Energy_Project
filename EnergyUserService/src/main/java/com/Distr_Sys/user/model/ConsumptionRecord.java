@@ -27,3 +27,4 @@ public class ConsumptionRecord {
     public LocalDateTime getDatetime() { return datetime; }
     public void setDatetime(LocalDateTime datetime) { this.datetime = datetime; }
 }
+//mvn exec:java -Dexec.mainClass=com.Distr_Sys.EnergyUserService.EnergyUserServiceApplication

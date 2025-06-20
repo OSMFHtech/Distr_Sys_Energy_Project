@@ -10,20 +10,21 @@ public class HourlyUsage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime hour;
+    @Column(name = "usage_hour")
+    private LocalDateTime usageHour;
     private int communityProduced;
     private int communityUsed;
     private int gridUsed;
 
     public HourlyUsage() {}
 
-    public HourlyUsage(LocalDateTime hour) {
-        this.hour = hour;
+    public HourlyUsage(LocalDateTime usageHour) {
+        this.usageHour = usageHour;
     }
 
     public Long getId() { return id; }
-    public LocalDateTime getHour() { return hour; }
-    public void setHour(LocalDateTime hour) { this.hour = hour; }
+    public LocalDateTime getUsageHour() { return usageHour; }
+    public void setUsageHour(LocalDateTime usageHour) { this.usageHour = usageHour; }
     public int getCommunityProduced() { return communityProduced; }
     public void setCommunityProduced(int communityProduced) { this.communityProduced = communityProduced; }
     public int getCommunityUsed() { return communityUsed; }

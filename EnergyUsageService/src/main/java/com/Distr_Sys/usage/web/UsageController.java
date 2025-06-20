@@ -24,3 +24,5 @@ public class UsageController {
         return svc.latestForUser(userId);
     }
 }
+
+//  curl.exe -X POST "http://localhost:8183/usage/publish?userId=1&usedKw=10"

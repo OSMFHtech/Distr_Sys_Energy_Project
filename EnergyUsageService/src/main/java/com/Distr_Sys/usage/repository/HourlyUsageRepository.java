@@ -6,5 +6,5 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface HourlyUsageRepository extends JpaRepository<HourlyUsage, Long> {
-    Optional<HourlyUsage> findByHour(LocalDateTime hour);
+    Optional<HourlyUsage> findByUsageHour(LocalDateTime usageHour);
 }

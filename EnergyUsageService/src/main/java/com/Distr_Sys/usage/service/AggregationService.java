@@ -21,10 +21,10 @@ public class AggregationService {
     }
 
     public void aggregateUsage(UsageRecord record) {
-        LocalDateTime hour = record.getTimestamp().atZone(ZoneOffset.UTC)
+        LocalDateTime usageHour = record.getTimestamp().atZone(ZoneOffset.UTC)
                 .withMinute(0).withSecond(0).withNano(0).toLocalDateTime();
 
-        HourlyUsage usage = hourlyRepo.findByHour(hour).orElse(new HourlyUsage(hour));
+        HourlyUsage usage = hourlyRepo.findByUsageHour(usageHour).orElse(new HourlyUsage(usageHour));
 
         if (record.getType() == UsageType.USER) {
             usage.setCommunityUsed(usage.getCommunityUsed() + record.getUsedKw());
