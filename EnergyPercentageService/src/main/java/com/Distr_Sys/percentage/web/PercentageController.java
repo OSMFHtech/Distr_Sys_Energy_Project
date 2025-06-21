@@ -2,20 +2,18 @@ package com.Distr_Sys.percentage.web;
 
 import com.Distr_Sys.percentage.service.PercentageService;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/percentage")
 public class PercentageController {
-    private final PercentageService service;
+    private final PercentageService percentageService;
 
-    public PercentageController(PercentageService service) {
-        this.service = service;
+    public PercentageController(PercentageService percentageService) {
+        this.percentageService = percentageService;
     }
 
     @GetMapping("/{userId}")
-    public Map<String, Object> getPercentage(@PathVariable Long userId) {
-        double perc = service.getPercentage(userId);
-        return Map.of("userId", userId, "percentage", perc);
+    public double getPercentage(@PathVariable Long userId) {
+        return percentageService.getPercentage(userId);
     }
 }

@@ -1,5 +1,6 @@
 package com.Distr_Sys.usage.service;
 
+import com.Distr_Sys.usage.model.*;
 import com.Distr_Sys.usage.config.RabbitConfig;
 import com.Distr_Sys.usage.model.UsageRecord;
 import com.Distr_Sys.usage.model.UsageType;

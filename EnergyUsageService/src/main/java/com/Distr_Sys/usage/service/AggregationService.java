@@ -1,10 +1,16 @@
 package com.Distr_Sys.usage.service;
 
+import com.Distr_Sys.usage.model.UpdateMessage;
 import com.Distr_Sys.usage.model.UsageRecord;
 import com.Distr_Sys.usage.model.UsageType;
 import com.Distr_Sys.usage.repository.UsageRepository;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -12,15 +18,18 @@ import java.util.stream.Collectors;
 @Service
 public class AggregationService {
     private final UsageRepository usageRepository;
+    private final AmqpTemplate amqpTemplate;
 
-    public AggregationService(UsageRepository usageRepository) {
+    @Autowired
+    public AggregationService(UsageRepository usageRepository, AmqpTemplate amqpTemplate) {
         this.usageRepository = usageRepository;
+        this.amqpTemplate = amqpTemplate;
     }
 
     public Map<UsageType, Double> aggregateByType() {
         List<UsageRecord> records = usageRepository.findAll();
         return records.stream()
-                .filter(r -> r.getType() != null) // Filter out null types
+                .filter(r -> r.getType() != null)
                 .collect(Collectors.groupingBy(
                         UsageRecord::getType,
                         Collectors.summingDouble(r -> {
@@ -35,6 +44,34 @@ public class AggregationService {
     }
 
     public void aggregateUsage(UsageRecord record) {
-        // Implement if you need real-time or periodic aggregation
+        // Aggregate for the current hour
+        ZonedDateTime hour = record.getTimestamp().atZone(ZoneId.systemDefault()).withMinute(0).withSecond(0).withNano(0);
+        Instant hourInstant = hour.toInstant();
+
+        List<UsageRecord> hourRecords = usageRepository.findAll().stream()
+                .filter(r -> r.getTimestamp() != null &&
+                        r.getTimestamp().atZone(ZoneId.systemDefault()).withMinute(0).withSecond(0).withNano(0).equals(hour))
+                .collect(Collectors.toList());
+
+        double communityProduced = hourRecords.stream()
+                .filter(r -> r.getType() == UsageType.PRODUCER && r.getProducedKw() != null)
+                .mapToDouble(UsageRecord::getProducedKw)
+                .sum();
+
+        double communityUsed = hourRecords.stream()
+                .filter(r -> r.getType() == UsageType.USER && r.getUsedKw() != null)
+                .mapToDouble(r -> r.getUsedKw())
+                .sum();
+
+        double gridUsed = Math.max(0, communityUsed - communityProduced);
+
+        // Build and send update message
+        UpdateMessage update = new UpdateMessage();
+        update.setHour(hourInstant.toEpochMilli());
+        update.setCommunityProduced(communityProduced);
+        update.setCommunityUsed(communityUsed);
+        update.setGridUsed(gridUsed);
+
+        amqpTemplate.convertAndSend("usage-update-queue", update);
     }
 }

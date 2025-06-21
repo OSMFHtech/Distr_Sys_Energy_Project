@@ -13,6 +13,8 @@ public class RabbitConfig {
     public static final String EXCHANGE = "energy-exchange";
     public static final String HOURLY_UPDATE_ROUTING_KEY = "hourly.update";
     public static final String HOURLY_UPDATE_QUEUE = "hourly-update-queue";
+    public static final String USAGE_UPDATE_QUEUE = "usage-update-queue";
+    public static final String USAGE_UPDATE_ROUTING_KEY = "usage.update";
 
     @Bean
     public TopicExchange exchange() {
@@ -20,13 +22,23 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue queue() {
-        return new Queue(HOURLY_UPDATE_QUEUE);
+    public Queue hourlyUpdateQueue() {
+        return new Queue(HOURLY_UPDATE_QUEUE, true);
     }
 
     @Bean
-    public Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(HOURLY_UPDATE_ROUTING_KEY);
+    public Queue usageUpdateQueue() {
+        return new Queue(USAGE_UPDATE_QUEUE, true);
+    }
+
+    @Bean
+    public Binding hourlyUpdateBinding(Queue hourlyUpdateQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(hourlyUpdateQueue).to(exchange).with(HOURLY_UPDATE_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding usageUpdateBinding(Queue usageUpdateQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(usageUpdateQueue).to(exchange).with(USAGE_UPDATE_ROUTING_KEY);
     }
 
     @Bean
