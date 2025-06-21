@@ -1,0 +1,9 @@
+HTTP/1.1 404 
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Sat, 21 Jun 2025 16:30:48 GMT
+
+{"timestamp":"2025-06-21T16:30:48.862+00:00","status":404,"error":"Not Found","path":"/percentage/"}

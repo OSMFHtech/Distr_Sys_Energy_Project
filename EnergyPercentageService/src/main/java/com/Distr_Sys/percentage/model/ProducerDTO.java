@@ -1,14 +1,25 @@
+// File: EnergyPercentageService/src/main/java/com/Distr_Sys/percentage/model/ProducerDTO.java
 package com.Distr_Sys.percentage.model;
 
-import java.time.Instant;
-
 public class ProducerDTO {
-    private Instant timestamp;
-    private int producedKw;
+    private Long id;
+    private String name;
+    private double producedKw;
 
     public ProducerDTO() {}
-    public Instant getTimestamp() { return timestamp; }
-    public void setTimestamp(Instant t) { this.timestamp = t; }
-    public int getProducedKw() { return producedKw; }
-    public void setProducedKw(int p) { this.producedKw = p; }
+
+    public ProducerDTO(Long id, String name, double producedKw) {
+        this.id = id;
+        this.name = name;
+        this.producedKw = producedKw;
+    }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public double getProducedKw() { return producedKw; }
+    public void setProducedKw(double producedKw) { this.producedKw = producedKw; }
 }

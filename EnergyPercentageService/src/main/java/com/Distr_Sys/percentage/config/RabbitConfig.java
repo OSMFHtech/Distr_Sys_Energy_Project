@@ -1,4 +1,4 @@
-package com.Distr_Sys.user.config;
+package com.Distr_Sys.percentage.config;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
     public static final String EXCHANGE = "energy-exchange";
-    public static final String ROUTING_KEY = "usage.new";
-    public static final String QUEUE = "usage-queue";
+    public static final String HOURLY_UPDATE_ROUTING_KEY = "hourly.update";
+    public static final String HOURLY_UPDATE_QUEUE = "hourly-update-queue";
 
     @Bean
     public TopicExchange exchange() {
@@ -21,12 +21,12 @@ public class RabbitConfig {
 
     @Bean
     public Queue queue() {
-        return new Queue(QUEUE);
+        return new Queue(HOURLY_UPDATE_QUEUE);
     }
 
     @Bean
     public Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
+        return BindingBuilder.bind(queue).to(exchange).with(HOURLY_UPDATE_ROUTING_KEY);
     }
 
     @Bean

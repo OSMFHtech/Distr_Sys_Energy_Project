@@ -53,12 +53,11 @@ public class UserService {
         ConsumptionRecord rec = new ConsumptionRecord(userId, kwh, now);
         rec = consRepo.save(rec);
 
-        // Send unified message
         EnergyMessage msg = new EnergyMessage(
                 EnergyMessage.Type.USER,
-                "COMMUNITY",
-                rec.getKwh(),
-                Instant.now()
+                userId,
+                Instant.now(),
+                rec.getKwh()
         );
         rabbit.convertAndSend(RabbitConfig.EXCHANGE, RabbitConfig.ROUTING_KEY, msg);
 

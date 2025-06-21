@@ -1,47 +1,40 @@
 package com.Distr_Sys.usage.service;
 
-import com.Distr_Sys.usage.model.HourlyUsage;
 import com.Distr_Sys.usage.model.UsageRecord;
 import com.Distr_Sys.usage.model.UsageType;
-import com.Distr_Sys.usage.repository.HourlyUsageRepository;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import com.Distr_Sys.usage.repository.UsageRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AggregationService {
-    private final HourlyUsageRepository hourlyRepo;
-    private final RabbitTemplate rabbit;
+    private final UsageRepository usageRepository;
 
-    public AggregationService(HourlyUsageRepository hourlyRepo, RabbitTemplate rabbit) {
-        this.hourlyRepo = hourlyRepo;
-        this.rabbit = rabbit;
+    public AggregationService(UsageRepository usageRepository) {
+        this.usageRepository = usageRepository;
+    }
+
+    public Map<UsageType, Double> aggregateByType() {
+        List<UsageRecord> records = usageRepository.findAll();
+        return records.stream()
+                .filter(r -> r.getType() != null) // Filter out null types
+                .collect(Collectors.groupingBy(
+                        UsageRecord::getType,
+                        Collectors.summingDouble(r -> {
+                            if (r.getType() == UsageType.PRODUCER && r.getProducedKw() != null) {
+                                return r.getProducedKw();
+                            } else if (r.getType() == UsageType.USER && r.getUsedKw() != null) {
+                                return r.getUsedKw();
+                            }
+                            return 0.0;
+                        })
+                ));
     }
 
     public void aggregateUsage(UsageRecord record) {
-        LocalDateTime usageHour = record.getTimestamp().atZone(ZoneOffset.UTC)
-                .withMinute(0).withSecond(0).withNano(0).toLocalDateTime();
-
-        HourlyUsage usage = hourlyRepo.findByUsageHour(usageHour).orElse(new HourlyUsage(usageHour));
-
-        if (record.getType() == UsageType.USER) {
-            usage.setCommunityUsed(usage.getCommunityUsed() + record.getUsedKw());
-        } else if (record.getType() == UsageType.PRODUCER) {
-            usage.setCommunityProduced(usage.getCommunityProduced() + record.getUsedKw());
-        }
-
-        // Simulate grid fallback
-        if (usage.getCommunityProduced() < usage.getCommunityUsed()) {
-            int diff = usage.getCommunityUsed() - usage.getCommunityProduced();
-            usage.setGridUsed(diff);
-        } else {
-            usage.setGridUsed(0);
-        }
-
-        hourlyRepo.save(usage);
-
-        rabbit.convertAndSend("energy-exchange", "hourly.update", usage);
+        // Implement if you need real-time or periodic aggregation
     }
 }

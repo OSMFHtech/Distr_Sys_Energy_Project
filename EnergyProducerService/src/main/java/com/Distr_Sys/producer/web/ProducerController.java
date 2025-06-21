@@ -2,6 +2,7 @@ package com.Distr_Sys.producer.web;
 
 import com.Distr_Sys.producer.model.ProductionRecord;
 import com.Distr_Sys.producer.service.ProducerService;
+import com.Distr_Sys.producer.web.ProductionRequest; // Import the top-level DTO
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;

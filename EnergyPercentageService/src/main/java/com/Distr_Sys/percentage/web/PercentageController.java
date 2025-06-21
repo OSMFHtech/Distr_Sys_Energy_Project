@@ -2,7 +2,6 @@ package com.Distr_Sys.percentage.web;
 
 import com.Distr_Sys.percentage.service.PercentageService;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Map;
 
 @RestController

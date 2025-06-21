@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "usage_records")
 public class UsageRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,32 +11,30 @@ public class UsageRecord {
 
     private Long userId;
     private Instant timestamp;
-    private int usedKw;
+    private Integer usedKw; // Changed to Integer
+    private Double producedKw; // New field
 
     @Enumerated(EnumType.STRING)
-    private UsageType type;
+    private UsageType type; // New field
 
     public UsageRecord() {}
 
-    public UsageRecord(Long userId, Instant timestamp, int usedKw, UsageType type) {
+    public UsageRecord(Long userId, Instant timestamp, Integer usedKw) {
         this.userId = userId;
         this.timestamp = timestamp;
         this.usedKw = usedKw;
-        this.type = type;
     }
 
-    // For backward compatibility
-    public UsageRecord(Long userId, Instant timestamp, int usedKw) {
-        this(userId, timestamp, usedKw, UsageType.USER);
-    }
-
+    // Getters and setters
     public Long getId() { return id; }
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
     public Instant getTimestamp() { return timestamp; }
     public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
-    public int getUsedKw() { return usedKw; }
-    public void setUsedKw(int usedKw) { this.usedKw = usedKw; }
+    public Integer getUsedKw() { return usedKw; }
+    public void setUsedKw(Integer usedKw) { this.usedKw = usedKw; }
+    public Double getProducedKw() { return producedKw; }
+    public void setProducedKw(Double producedKw) { this.producedKw = producedKw; }
     public UsageType getType() { return type; }
     public void setType(UsageType type) { this.type = type; }
 }

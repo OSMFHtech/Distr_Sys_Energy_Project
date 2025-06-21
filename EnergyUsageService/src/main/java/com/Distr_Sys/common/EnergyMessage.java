@@ -7,20 +7,27 @@ public class EnergyMessage {
 
     private Type type;
     private Long userId;
-    private Instant timestamp;
+    private Instant datetime;
     private double kwh;
 
     public EnergyMessage() {}
 
-    public EnergyMessage(Type type, Long userId, Instant timestamp, double kwh) {
+    public EnergyMessage(Type type, Long userId, Instant datetime, double kwh) {
         this.type = type;
         this.userId = userId;
-        this.timestamp = timestamp;
+        this.datetime = datetime;
         this.kwh = kwh;
     }
 
     public Type getType() { return type; }
+    public void setType(Type type) { this.type = type; }
+
     public Long getUserId() { return userId; }
-    public Instant getTimestamp() { return timestamp; }
+    public void setUserId(Long userId) { this.userId = userId; }
+
+    public Instant getDatetime() { return datetime; }
+    public void setDatetime(Instant datetime) { this.datetime = datetime; }
+
     public double getKwh() { return kwh; }
+    public void setKwh(double kwh) { this.kwh = kwh; }
 }

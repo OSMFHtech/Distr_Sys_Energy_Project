@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   rabbitmq:
     image: rabbitmq:3.9-management
@@ -6,38 +7,71 @@ services:
       - "5672:5672"
       - "15672:15672"
 
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: energydb
+      POSTGRES_USER: energyuser
+      POSTGRES_PASSWORD: energypass
+    ports:
+      - "5432:5432"
+
   producer:
     build: ./EnergyProducerService
     ports:
-      - "8081:8081"
+      - "8181:8181"
+    depends_on:
+      - postgres
+      - rabbitmq
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
+      SPRING_DATASOURCE_USERNAME: energyuser
+      SPRING_DATASOURCE_PASSWORD: energypass
 
   user:
     build: ./EnergyUserService
     ports:
-      - "8082:8082"
+      - "8182:8182"
+    depends_on:
+      - postgres
+      - rabbitmq
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
+      SPRING_DATASOURCE_USERNAME: energyuser
+      SPRING_DATASOURCE_PASSWORD: energypass
 
   usage:
     build: ./EnergyUsageService
     ports:
-      - "8083:8083"
+      - "8183:8183"
+    depends_on:
+      - postgres
+      - rabbitmq
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
+      SPRING_DATASOURCE_USERNAME: energyuser
+      SPRING_DATASOURCE_PASSWORD: energypass
 
   percentage:
     build: ./EnergyPercentageService
     ports:
-      - "8084:8084"
+      - "8184:8184"
+    depends_on:
+      - postgres
+      - rabbitmq
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
+      SPRING_DATASOURCE_USERNAME: energyuser
+      SPRING_DATASOURCE_PASSWORD: energypass
 
   energy-api:
     build: ./EnergyAPI
     ports:
-      - "8080:8080"
+      - "8180:8180"
     depends_on:
       - producer
       - user
@@ -47,6 +81,6 @@ services:
   energy-gui:
     build: ./EnergyGUI
     ports:
-      - "8085:8085"
+      - "8185:8185"
     depends_on:
       - energy-api

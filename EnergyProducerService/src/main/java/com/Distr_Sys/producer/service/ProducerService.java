@@ -29,15 +29,17 @@ public class ProducerService {
         );
         rec = repo.save(rec);
 
-        // Send unified message
         EnergyMessage msg = new EnergyMessage(
                 EnergyMessage.Type.PRODUCER,
-                "COMMUNITY",
-                rec.getKwh(),
-                Instant.now()
+                1L,
+                Instant.now(),
+                rec.getKwh()
         );
         rabbit.convertAndSend(RabbitConfig.EXCHANGE, RabbitConfig.ROUTING_KEY, msg);
-
+        System.out.println("[Producer] Sent message: type=" + msg.getType() +
+                ", userId=" + msg.getUserId() +
+                ", kwh=" + msg.getKwh() +
+                ", datetime=" + msg.getDatetime());
         return rec;
     }
 
