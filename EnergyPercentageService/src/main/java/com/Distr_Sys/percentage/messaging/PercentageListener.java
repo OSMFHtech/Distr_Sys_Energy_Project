@@ -14,7 +14,7 @@ public class PercentageListener {
         this.repo = repo;
     }
 
-    @RabbitListener(queues = "#{T(com.Distr_Sys.percentage.config.RabbitConfig).HOURLY_UPDATE_QUEUE}")
+    @RabbitListener(queues = "${percentage.rabbitmq.usage-update-queue}")
     public void handleHourlyUpdate(HourlyUsage usage) {
         double communityDepleted = usage.getCommunityProduced() < usage.getCommunityUsed() ? 100.0 : 0.0;
         double totalUsage = usage.getCommunityUsed() + usage.getGridUsed();

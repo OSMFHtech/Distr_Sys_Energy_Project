@@ -15,14 +15,21 @@ services:
       POSTGRES_PASSWORD: energypass
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U energyuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   producer:
     build: ./EnergyProducerService
     ports:
       - "8181:8181"
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
@@ -34,8 +41,10 @@ services:
     ports:
       - "8182:8182"
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
@@ -45,10 +54,12 @@ services:
   usage:
     build: ./EnergyUsageService
     ports:
-      - "8183:8183"
+      - "8186:8186"
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
@@ -60,8 +71,10 @@ services:
     ports:
       - "8184:8184"
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
@@ -73,14 +86,23 @@ services:
     ports:
       - "8180:8180"
     depends_on:
-      - producer
-      - user
-      - usage
-      - percentage
+      producer:
+        condition: service_started
+      user:
+        condition: service_started
+      usage:
+        condition: service_started
+      percentage:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
+      SPRING_DATASOURCE_USERNAME: energyuser
+      SPRING_DATASOURCE_PASSWORD: energypass
 
   energy-gui:
     build: ./EnergyGUI
     ports:
       - "8185:8185"
     depends_on:
-      - energy-api
+      energy-api:
+        condition: service_started

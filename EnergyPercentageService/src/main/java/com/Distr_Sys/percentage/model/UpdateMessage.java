@@ -1,8 +1,9 @@
 package com.Distr_Sys.percentage.model;
 
+import java.io.Serializable;
 import java.time.Instant;
 
-public class UpdateMessage {
+public class UpdateMessage implements Serializable {
     private Instant hour;
     private double communityProduced;
     private double communityUsed;

@@ -7,6 +7,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 @Service
 public class PercentageService {
     private final PercentageRecordRepository repository;
@@ -18,22 +20,22 @@ public class PercentageService {
     @RabbitListener(queues = "${percentage.rabbitmq.usage-update-queue}")
     @Transactional
     public void handleUpdate(UpdateMessage msg) {
+        // Use Instant directly
+        Instant hourInstant = msg.getHour();
         double totalUsed = msg.getCommunityUsed() + msg.getGridUsed();
         double communityDepleted = (msg.getCommunityProduced() <= msg.getCommunityUsed()) ? 100.0 : (msg.getCommunityUsed() / msg.getCommunityProduced()) * 100.0;
         double gridPortion = (totalUsed == 0) ? 0.0 : (msg.getGridUsed() / totalUsed) * 100.0;
 
-        PercentageRecord record = repository.findByHour(msg.getHour())
+        PercentageRecord record = repository.findByHour(hourInstant)
                 .orElse(new PercentageRecord());
-        record.setHour(msg.getHour());
+        record.setHour(hourInstant);
         record.setCommunityDepleted(communityDepleted);
         record.setGridPortion(gridPortion);
 
         repository.save(record);
     }
 
-    // Add this method for the controller
     public double getPercentage(Long userId) {
-        // Since PercentageRecord is not user-specific, return the latest gridPortion
         return repository.findAll().stream()
                 .sorted((a, b) -> b.getHour().compareTo(a.getHour()))
                 .findFirst()
