@@ -1,13 +1,14 @@
 package com.Distr_Sys.percentage.service;
 
 import com.Distr_Sys.percentage.model.PercentageRecord;
-import com.Distr_Sys.percentage.model.UpdateMessage;
+import com.Distr_Sys.percentage.shared.UpdateMessage;
 import com.Distr_Sys.percentage.repository.PercentageRecordRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
+import java.util.List;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Service
 public class PercentageService {
@@ -20,26 +21,35 @@ public class PercentageService {
     @RabbitListener(queues = "${percentage.rabbitmq.usage-update-queue}")
     @Transactional
     public void handleUpdate(UpdateMessage msg) {
-        // Use Instant directly
-        Instant hourInstant = msg.getHour();
+        if (msg == null) {
+            System.err.println("Received null UpdateMessage!");
+            return;
+        }
+        System.out.printf(
+                "Received UpdateMessage: hour=%d, produced=%.2f, used=%.2f, grid=%.2f%n",
+                msg.getHour(), msg.getCommunityProduced(), msg.getCommunityUsed(), msg.getGridUsed()
+        );
+
+        LocalDateTime hour = LocalDateTime.ofInstant(
+                java.time.Instant.ofEpochMilli(msg.getHour()), ZoneId.systemDefault()
+        );
         double totalUsed = msg.getCommunityUsed() + msg.getGridUsed();
-        double communityDepleted = (msg.getCommunityProduced() <= msg.getCommunityUsed()) ? 100.0 : (msg.getCommunityUsed() / msg.getCommunityProduced()) * 100.0;
+        double communityDepleted = (msg.getCommunityProduced() <= msg.getCommunityUsed() && msg.getCommunityProduced() > 0)
+                ? 100.0
+                : (msg.getCommunityProduced() > 0 ? (msg.getCommunityUsed() / msg.getCommunityProduced()) * 100.0 : 0.0);
         double gridPortion = (totalUsed == 0) ? 0.0 : (msg.getGridUsed() / totalUsed) * 100.0;
 
-        PercentageRecord record = repository.findByHour(hourInstant)
+        PercentageRecord record = repository.findByHour(hour)
                 .orElse(new PercentageRecord());
-        record.setHour(hourInstant);
+        record.setHour(hour);
         record.setCommunityDepleted(communityDepleted);
         record.setGridPortion(gridPortion);
 
         repository.save(record);
+        System.out.println("Saved PercentageRecord for hour: " + hour);
     }
 
-    public double getPercentage(Long userId) {
-        return repository.findAll().stream()
-                .sorted((a, b) -> b.getHour().compareTo(a.getHour()))
-                .findFirst()
-                .map(PercentageRecord::getGridPortion)
-                .orElse(0.0);
+    public List<PercentageRecord> getAllPercentages() {
+        return repository.findAll();
     }
 }

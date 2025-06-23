@@ -1,18 +1,18 @@
 package com.Distr_Sys.common;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 public class EnergyMessage {
     public enum Type { USER, PRODUCER }
 
     private Type type;
     private Long userId;
-    private Instant datetime;
+    private LocalDateTime datetime;
     private double kwh;
 
     public EnergyMessage() {}
 
-    public EnergyMessage(Type type, Long userId, Instant datetime, double kwh) {
+    public EnergyMessage(Type type, Long userId, LocalDateTime datetime, double kwh) {
         this.type = type;
         this.userId = userId;
         this.datetime = datetime;
@@ -25,8 +25,8 @@ public class EnergyMessage {
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
 
-    public Instant getDatetime() { return datetime; }
-    public void setDatetime(Instant datetime) { this.datetime = datetime; }
+    public LocalDateTime getDatetime() { return datetime; }
+    public void setDatetime(LocalDateTime datetime) { this.datetime = datetime; }
 
     public double getKwh() { return kwh; }
     public void setKwh(double kwh) { this.kwh = kwh; }

@@ -40,4 +40,13 @@ public class RabbitConfig {
         template.setMessageConverter(jsonMessageConverter());
         return template;
     }
+    @Bean
+    public Queue usageUpdateQueue() {
+        return new Queue("usage.update");
+    }
+
+    @Bean
+    public Binding usageUpdateBinding(Queue usageUpdateQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(usageUpdateQueue).to(exchange).with("usage.update");
+    }
 }

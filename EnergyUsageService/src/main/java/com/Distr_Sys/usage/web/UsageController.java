@@ -28,6 +28,12 @@ public class UsageController {
         return ResponseEntity.ok(usageService.recordUsage(userId, usedKw));
     }
 
+    // New: Accept JSON body for user usage
+    @PostMapping("/publish/json")
+    public ResponseEntity<UsageRecord> publishJson(@RequestBody UsageRecord usage) {
+        return ResponseEntity.ok(usageService.recordUsage(usage.getUserId(), usage.getUsedKw()));
+    }
+
     @GetMapping("/{userId}")
     public UsageRecord latest(@PathVariable Long userId) {
         return usageService.latestForUser(userId);
@@ -36,5 +42,15 @@ public class UsageController {
     @GetMapping("/aggregate/by-type")
     public Map<UsageType, Double> aggregateByType() {
         return aggregationService.aggregateByType();
+    }
+
+    @PostMapping("/aggregate/manual")
+    public ResponseEntity<String> manualAggregate() {
+        UsageRecord latest = usageService.findLatestRecord();
+        if (latest == null) {
+            return ResponseEntity.badRequest().body("No usage records found");
+        }
+        aggregationService.aggregateUsage(latest);
+        return ResponseEntity.ok("Aggregation triggered");
     }
 }

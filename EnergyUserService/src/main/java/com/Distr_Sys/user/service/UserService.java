@@ -9,9 +9,7 @@ import com.Distr_Sys.common.EnergyMessage;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -42,7 +40,7 @@ public class UserService {
     }
 
     public ConsumptionRecord consume(Long userId, Double m) {
-        LocalDateTime now = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+        LocalDateTime now = LocalDateTime.now();
         int hour = now.getHour();
         double kwh;
         if ((hour >= 6 && hour < 10) || (hour >= 18 && hour < 22)) {
@@ -56,7 +54,7 @@ public class UserService {
         EnergyMessage msg = new EnergyMessage(
                 EnergyMessage.Type.USER,
                 userId,
-                Instant.now(),
+                now,
                 rec.getKwh()
         );
         rabbit.convertAndSend(RabbitConfig.EXCHANGE, RabbitConfig.ROUTING_KEY, msg);

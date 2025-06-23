@@ -9,6 +9,9 @@ import java.util.Optional;
 public interface UsageRepository extends JpaRepository<UsageRecord, Long> {
     Optional<UsageRecord> findTopByUserIdOrderByTimestampDesc(Long userId);
 
-    @Query("SELECT u.type, SUM(u.usedKw) FROM UsageRecord u GROUP BY u.type")
+
+    Optional<UsageRecord> findTopByOrderByTimestampDesc();
+
+    @Query("SELECT u.type, SUM(CASE WHEN u.type = com.Distr_Sys.usage.model.UsageType.PRODUCER THEN u.producedKw ELSE u.usedKw END) FROM UsageRecord u GROUP BY u.type")
     List<Object[]> aggregateUsageByType();
 }

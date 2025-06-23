@@ -8,7 +8,7 @@ import com.Distr_Sys.usage.service.AggregationService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Component
 public class UsageMessageListener {
@@ -23,15 +23,18 @@ public class UsageMessageListener {
     @RabbitListener(queues = "#{T(com.Distr_Sys.usage.config.RabbitConfig).QUEUE}")
     public void handleUsageMessage(EnergyMessage msg) {
         UsageRecord record = new UsageRecord();
+        LocalDateTime timestamp = msg.getDatetime() != null
+                ? msg.getDatetime()
+                : LocalDateTime.now();
         record.setUserId(msg.getUserId());
-        record.setTimestamp(msg.getDatetime() != null ? msg.getDatetime() : Instant.now());
+        record.setTimestamp(timestamp);
 
         if (msg.getType() == EnergyMessage.Type.PRODUCER) {
             record.setProducedKw(msg.getKwh());
             record.setUsedKw(null);
             record.setType(UsageType.PRODUCER);
-        } else {
-            record.setUsedKw((int) msg.getKwh());
+        } else if (msg.getType() == EnergyMessage.Type.USER) {
+            record.setUsedKw(msg.getKwh());
             record.setProducedKw(null);
             record.setType(UsageType.USER);
         }

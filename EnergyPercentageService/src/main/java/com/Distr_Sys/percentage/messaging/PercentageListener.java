@@ -1,4 +1,4 @@
-package com.Distr_Sys.percentage.messaging;
+/*package com.Distr_Sys.percentage.messaging;
 
 import com.Distr_Sys.percentage.dto.HourlyUsage;
 import com.Distr_Sys.percentage.model.PercentageRecord;
@@ -31,3 +31,5 @@ public class PercentageListener {
         repo.save(record);
     }
 }
+
+ */

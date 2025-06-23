@@ -1,5 +1,7 @@
 package com.Distr_Sys.percentage.web;
 
+import java.util.List;
+import com.Distr_Sys.percentage.model.PercentageRecord;
 import com.Distr_Sys.percentage.service.PercentageService;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,8 +14,8 @@ public class PercentageController {
         this.percentageService = percentageService;
     }
 
-    @GetMapping("/{userId}")
-    public double getPercentage(@PathVariable Long userId) {
-        return percentageService.getPercentage(userId);
+    @GetMapping("/all")
+    public List<PercentageRecord> getAllPercentages() {
+        return percentageService.getAllPercentages();
     }
 }

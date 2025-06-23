@@ -1,10 +1,11 @@
-// EnergyPercentageService/src/main/java/com/Distr_Sys/percentage/config/RabbitConfig.java
 package com.Distr_Sys.percentage.config;
 
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 
 @Configuration
 public class RabbitConfig {
@@ -14,7 +15,21 @@ public class RabbitConfig {
 
     @Bean
     public Queue usageUpdateQueue() {
-        // durable, not exclusive, not auto-delete
         return new Queue(usageUpdateQueueName, true, false, false);
+    }
+
+    @Bean
+    public TopicExchange exchange() {
+        return new TopicExchange("energy-exchange");
+    }
+
+    @Bean
+    public Binding usageUpdateBinding(Queue usageUpdateQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(usageUpdateQueue).to(exchange).with("usage.update");
+    }
+
+    @Bean
+    public MessageConverter jsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
     }
 }

@@ -1,4 +1,4 @@
-package com.Distr_Sys.usage.model;
+package com.Distr_Sys.usage.shared;
 
 import java.io.Serializable;
 
@@ -8,7 +8,6 @@ public class UpdateMessage implements Serializable {
     private double communityUsed;
     private double gridUsed;
 
-    // Getters and setters
     public long getHour() { return hour; }
     public void setHour(long hour) { this.hour = hour; }
     public double getCommunityProduced() { return communityProduced; }

@@ -1,16 +1,15 @@
-package com.Distr_Sys.percentage.model;
+package com.Distr_Sys.percentage.shared;
 
 import java.io.Serializable;
-import java.time.Instant;
 
 public class UpdateMessage implements Serializable {
-    private Instant hour;
+    private long hour;
     private double communityProduced;
     private double communityUsed;
     private double gridUsed;
 
-    public Instant getHour() { return hour; }
-    public void setHour(Instant hour) { this.hour = hour; }
+    public long getHour() { return hour; }
+    public void setHour(long hour) { this.hour = hour; }
     public double getCommunityProduced() { return communityProduced; }
     public void setCommunityProduced(double communityProduced) { this.communityProduced = communityProduced; }
     public double getCommunityUsed() { return communityUsed; }

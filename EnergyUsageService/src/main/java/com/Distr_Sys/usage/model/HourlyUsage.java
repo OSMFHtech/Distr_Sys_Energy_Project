@@ -12,9 +12,9 @@ public class HourlyUsage {
 
     @Column(name = "usage_hour")
     private LocalDateTime usageHour;
-    private int communityProduced;
-    private int communityUsed;
-    private int gridUsed;
+    private double communityProduced;
+    private double communityUsed;
+    private double gridUsed;
 
     public HourlyUsage() {}
 
@@ -25,10 +25,10 @@ public class HourlyUsage {
     public Long getId() { return id; }
     public LocalDateTime getUsageHour() { return usageHour; }
     public void setUsageHour(LocalDateTime usageHour) { this.usageHour = usageHour; }
-    public int getCommunityProduced() { return communityProduced; }
-    public void setCommunityProduced(int communityProduced) { this.communityProduced = communityProduced; }
-    public int getCommunityUsed() { return communityUsed; }
-    public void setCommunityUsed(int communityUsed) { this.communityUsed = communityUsed; }
-    public int getGridUsed() { return gridUsed; }
-    public void setGridUsed(int gridUsed) { this.gridUsed = gridUsed; }
+    public double getCommunityProduced() { return communityProduced; }
+    public void setCommunityProduced(double communityProduced) { this.communityProduced = communityProduced; }
+    public double getCommunityUsed() { return communityUsed; }
+    public void setCommunityUsed(double communityUsed) { this.communityUsed = communityUsed; }
+    public double getGridUsed() { return gridUsed; }
+    public void setGridUsed(double gridUsed) { this.gridUsed = gridUsed; }
 }

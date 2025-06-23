@@ -1,7 +1,7 @@
 package com.Distr_Sys.usage.model;
 
 import jakarta.persistence.*;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 public class UsageRecord {
@@ -10,29 +10,28 @@ public class UsageRecord {
     private Long id;
 
     private Long userId;
-    private Instant timestamp;
-    private Integer usedKw; // Changed to Integer
-    private Double producedKw; // New field
+    private LocalDateTime timestamp;
+    private Double usedKw;
+    private Double producedKw;
 
     @Enumerated(EnumType.STRING)
-    private UsageType type; // New field
+    private UsageType type;
 
     public UsageRecord() {}
 
-    public UsageRecord(Long userId, Instant timestamp, Integer usedKw) {
+    public UsageRecord(Long userId, LocalDateTime timestamp, Double usedKw) {
         this.userId = userId;
         this.timestamp = timestamp;
         this.usedKw = usedKw;
     }
 
-    // Getters and setters
     public Long getId() { return id; }
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
-    public Instant getTimestamp() { return timestamp; }
-    public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
-    public Integer getUsedKw() { return usedKw; }
-    public void setUsedKw(Integer usedKw) { this.usedKw = usedKw; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    public Double getUsedKw() { return usedKw; }
+    public void setUsedKw(Double usedKw) { this.usedKw = usedKw; }
     public Double getProducedKw() { return producedKw; }
     public void setProducedKw(Double producedKw) { this.producedKw = producedKw; }
     public UsageType getType() { return type; }

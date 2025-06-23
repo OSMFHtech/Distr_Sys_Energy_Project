@@ -7,6 +7,10 @@ example :  curl.exe -X POST "http://localhost:8181/producer/publish" -H "Content
 or : curl.exe -X POST "http://localhost:8181/producer/publish" -H "Content-Type: application/json" -d "{\"producedKw\":10}"
 - EnergyUserService (port 8182)
   example : Invoke-RestMethod -Uri "http://localhost:8182/user/profile" -Method POST -Body '{"name":"John Doe","email":"john@example.com"}' -ContentType "application/json"
+  or Invoke-WebRequest -Uri "http://localhost:8182/user/consume" `
+>>   -Method Post `
+>>   -Headers @{ "Content-Type" = "application/json" } `
+>>   -Body '{"userId":1,"m":5}'
 
 - EnergyUsageService (port 8183)
   example : curl.exe -X POST "http://localhost:8183/usage/publish?userId=1&usedKw=10"
