@@ -36,24 +36,22 @@ public class UserController {
     }
 
     @PostMapping("/consume")
-    public ResponseEntity<Map<String, Object>> consume(@RequestBody Map<String, Object> req) {
-        Long userId = Long.valueOf(req.get("userId").toString());
-        Double m = Double.valueOf(req.get("m").toString());
-        ConsumptionRecord rec = service.consume(userId, m);
+    public ResponseEntity<Map<String, Object>> consume(@RequestParam Long userId, @RequestParam Double maxKwh) {
+        ConsumptionRecord rec = service.consume(userId, maxKwh);
         return ResponseEntity.ok(Map.of(
-                "message", "Consumption recorded",
+                "message", "Consumption message published",
                 "id", rec.getId(),
                 "timestamp", rec.getDatetime(),
-                "consumedKw", rec.getKwh()
+                "usedKw", String.format("%.3f", rec.getKwh())
         ));
     }
 
-    @GetMapping("/consume/latest")
-    public ResponseEntity<ConsumptionRecord> latest() {
-        return ResponseEntity.ok(service.latestConsumption());
+    @GetMapping("/consumption/latest")
+    public ConsumptionRecord latest() {
+        return service.latestConsumption();
     }
 
-    @GetMapping("/consume/all")
+    @GetMapping("/consumption/all")
     public List<ConsumptionRecord> all() {
         return service.getAllConsumption();
     }

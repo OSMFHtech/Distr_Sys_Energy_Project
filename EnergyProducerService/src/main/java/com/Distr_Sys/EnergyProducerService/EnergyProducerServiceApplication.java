@@ -25,8 +25,8 @@ public class EnergyProducerServiceApplication {
 	@Bean
 	CommandLineRunner initDb(ProductionRepository repo) {
 		return args -> {
-			repo.save(new ProductionRecord(1, 0.005, LocalDateTime.now()));
-			repo.save(new ProductionRecord(2, 0.007, LocalDateTime.now().minusMinutes(1)));
+			repo.save(new ProductionRecord(1L, 0.005, LocalDateTime.now()));
+			repo.save(new ProductionRecord(2L, 0.007, LocalDateTime.now().minusMinutes(1)));
 		};
 	}
 

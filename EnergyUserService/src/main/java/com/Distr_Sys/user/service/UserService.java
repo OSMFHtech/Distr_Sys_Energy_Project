@@ -12,14 +12,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 public class UserService {
     private final UserRepository userRepo;
     private final ConsumptionRepository consRepo;
     private final RabbitTemplate rabbit;
-    private final Random random = new Random();
 
     public UserService(UserRepository userRepo, ConsumptionRepository consRepo, RabbitTemplate rabbit) {
         this.userRepo = userRepo;
@@ -41,13 +39,8 @@ public class UserService {
 
     public ConsumptionRecord consume(Long userId, Double m) {
         LocalDateTime now = LocalDateTime.now();
-        int hour = now.getHour();
-        double kwh;
-        if ((hour >= 6 && hour < 10) || (hour >= 18 && hour < 22)) {
-            kwh = m * random.nextDouble();
-        } else {
-            kwh = m * random.nextDouble() * 0.2;
-        }
+        double kwh = m; // Always use the requested value
+
         ConsumptionRecord rec = new ConsumptionRecord(userId, kwh, now);
         rec = consRepo.save(rec);
 

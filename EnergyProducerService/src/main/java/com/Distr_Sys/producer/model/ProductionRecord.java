@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 public class ProductionRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "producer_id")
-    private Integer producerId;
+    private Long producerId;
 
     private Double kwh;
 
@@ -19,15 +19,15 @@ public class ProductionRecord {
 
     public ProductionRecord() {}
 
-    public ProductionRecord(Integer producerId, Double kwh, LocalDateTime datetime) {
+    public ProductionRecord(Long producerId, Double kwh, LocalDateTime datetime) {
         this.producerId = producerId;
         this.kwh = kwh;
         this.datetime = datetime;
     }
 
-    public Integer getId() { return id; }
-    public Integer getProducerId() { return producerId; }
-    public void setProducerId(Integer producerId) { this.producerId = producerId; }
+    public Long getId() { return id; }
+    public Long getProducerId() { return producerId; }
+    public void setProducerId(Long producerId) { this.producerId = producerId; }
     public Double getKwh() { return kwh; }
     public void setKwh(Double kwh) { this.kwh = kwh; }
     public LocalDateTime getDatetime() { return datetime; }

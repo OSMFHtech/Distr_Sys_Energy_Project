@@ -5,20 +5,21 @@ import com.Distr_Sys.usage.config.RabbitConfig;
 import com.Distr_Sys.usage.repository.UsageRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class UsageService {
     private final UsageRepository repo;
     private final RabbitTemplate rabbit;
+    private final AggregationService aggregationService;
 
-    public UsageService(UsageRepository repo, RabbitTemplate rabbit) {
+    public UsageService(UsageRepository repo, RabbitTemplate rabbit, AggregationService aggregationService) {
         this.repo = repo;
         this.rabbit = rabbit;
+        this.aggregationService = aggregationService;
     }
 
     public UsageRecord recordUsage(Long userId, double usedKw) {
@@ -27,6 +28,7 @@ public class UsageService {
         rec.setType(UsageType.USER);
         rec = repo.save(rec);
         rabbit.convertAndSend(RabbitConfig.EXCHANGE, RabbitConfig.ROUTING_KEY, rec);
+        aggregationService.aggregateUsage(rec);
         return rec;
     }
 
@@ -35,16 +37,17 @@ public class UsageService {
                 .orElse(new UsageRecord(userId, LocalDateTime.now(), 0.0));
     }
 
-
     public UsageRecord findLatestRecord() {
         return repo.findTopByOrderByTimestampDesc().orElse(null);
     }
 
-    public Map<String, Double> aggregateUsageByType() {
+    public Map<UsageType, Double> aggregateUsageByType() {
         List<Object[]> results = repo.aggregateUsageByType();
-        Map<String, Double> summary = new HashMap<>();
+        Map<UsageType, Double> summary = new HashMap<>();
         for (Object[] row : results) {
-            summary.put(row[0].toString(), row[1] != null ? ((Number) row[1]).doubleValue() : 0.0);
+            UsageType type = UsageType.valueOf(row[0].toString());
+            Double value = row[1] != null ? ((Number) row[1]).doubleValue() : 0.0;
+            summary.put(type, value);
         }
         return summary;
     }

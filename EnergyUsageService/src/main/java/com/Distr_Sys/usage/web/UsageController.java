@@ -6,6 +6,7 @@ import com.Distr_Sys.usage.service.AggregationService;
 import com.Distr_Sys.usage.service.UsageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
 
 import java.util.Map;
 
@@ -21,17 +22,28 @@ public class UsageController {
     }
 
     @PostMapping("/publish")
-    public ResponseEntity<UsageRecord> publish(
+    public ResponseEntity<Map<String, Object>> publish(
             @RequestParam Long userId,
-            @RequestParam int usedKw
+            @RequestParam Double usedKw
     ) {
-        return ResponseEntity.ok(usageService.recordUsage(userId, usedKw));
+        UsageRecord rec = usageService.recordUsage(userId, usedKw);
+        return ResponseEntity.ok(Map.of(
+                "message", "Usage recorded",
+                "id", rec.getId(),
+                "timestamp", rec.getTimestamp(),
+                "usedKw", String.format("%.3f", rec.getUsedKw())
+        ));
     }
 
-    // New: Accept JSON body for user usage
     @PostMapping("/publish/json")
-    public ResponseEntity<UsageRecord> publishJson(@RequestBody UsageRecord usage) {
-        return ResponseEntity.ok(usageService.recordUsage(usage.getUserId(), usage.getUsedKw()));
+    public ResponseEntity<Map<String, Object>> publishJson(@RequestBody UsageRecord usage) {
+        UsageRecord rec = usageService.recordUsage(usage.getUserId(), usage.getUsedKw());
+        return ResponseEntity.ok(Map.of(
+                "message", "Usage recorded",
+                "id", rec.getId(),
+                "timestamp", rec.getTimestamp(),
+                "usedKw", String.format("%.3f", rec.getUsedKw())
+        ));
     }
 
     @GetMapping("/{userId}")
@@ -40,10 +52,12 @@ public class UsageController {
     }
 
     @GetMapping("/aggregate/by-type")
-    public Map<UsageType, Double> aggregateByType() {
-        return aggregationService.aggregateByType();
+    public Map<String, String> aggregateByType() {
+        Map<UsageType, Double> raw = aggregationService.aggregateByType();
+        Map<String, String> formatted = new HashMap<>();
+        raw.forEach((type, value) -> formatted.put(type.name(), String.format("%.3f", value)));
+        return formatted;
     }
-
     @PostMapping("/aggregate/manual")
     public ResponseEntity<String> manualAggregate() {
         UsageRecord latest = usageService.findLatestRecord();

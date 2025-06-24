@@ -31,3 +31,10 @@ docker-compose up --build
 Ensure RabbitMQ is accessible at `rabbitmq:5672` and its UI at `http://localhost:15672`.
 
 See `PROJECT_IMPORTANT_STEPS.md` for detailed setup.
+
+
+database : docker exec -it $(docker ps -qf "ancestor=postgres:15") psql -U energyuser -d energydb
+
+\dt
+SELECT * FROM usage_record;
+SELECT * FROM hourly_usage;

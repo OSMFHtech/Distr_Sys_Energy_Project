@@ -13,6 +13,7 @@ import java.util.List;
 public class ProducerService {
     private final ProductionRepository repo;
     private final RabbitTemplate rabbit;
+    private static final Long PRODUCER_ID = 1L;
 
     public ProducerService(ProductionRepository repo, RabbitTemplate rabbit) {
         this.repo = repo;
@@ -20,31 +21,30 @@ public class ProducerService {
     }
 
     public ProductionRecord produce(double kw) {
+        LocalDateTime now = LocalDateTime.now();
         ProductionRecord rec = new ProductionRecord(
-                1, // producerId
+                PRODUCER_ID,
                 kw,
-                LocalDateTime.now()
+                now
         );
         rec = repo.save(rec);
 
         EnergyMessage msg = new EnergyMessage(
                 EnergyMessage.Type.PRODUCER,
-                1L,
-                LocalDateTime.now(),
+                PRODUCER_ID,
+                now,
                 rec.getKwh()
         );
         rabbit.convertAndSend(RabbitConfig.EXCHANGE, RabbitConfig.ROUTING_KEY, msg);
-        System.out.println("[Producer] Sent message: type=" + msg.getType() +
-                ", userId=" + msg.getUserId() +
-                ", kwh=" + msg.getKwh() +
-                ", datetime=" + msg.getDatetime());
+        System.out.printf("[Producer] Sent message: type=%s, userId=%d, kwh=%.3f, datetime=%s%n",
+                msg.getType(), msg.getUserId(), msg.getKwh(), msg.getDatetime());
         return rec;
     }
 
     public ProductionRecord latest() {
         return repo.findTopByOrderByDatetimeDesc()
                 .orElse(new ProductionRecord(
-                        1,
+                        PRODUCER_ID,
                         0.0,
                         LocalDateTime.now()
                 ));

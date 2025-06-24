@@ -34,9 +34,12 @@ public class PercentageService {
                 java.time.Instant.ofEpochMilli(msg.getHour()), ZoneId.systemDefault()
         );
         double totalUsed = msg.getCommunityUsed() + msg.getGridUsed();
-        double communityDepleted = (msg.getCommunityProduced() <= msg.getCommunityUsed() && msg.getCommunityProduced() > 0)
-                ? 100.0
-                : (msg.getCommunityProduced() > 0 ? (msg.getCommunityUsed() / msg.getCommunityProduced()) * 100.0 : 0.0);
+
+        // Fix: Cap at 100%, show 0% if nothing produced
+        double communityDepleted = (msg.getCommunityProduced() == 0)
+                ? 0.0
+                : Math.min(100.0, (msg.getCommunityUsed() / msg.getCommunityProduced()) * 100.0);
+
         double gridPortion = (totalUsed == 0) ? 0.0 : (msg.getGridUsed() / totalUsed) * 100.0;
 
         PercentageRecord record = repository.findByHour(hour)
@@ -51,5 +54,10 @@ public class PercentageService {
 
     public List<PercentageRecord> getAllPercentages() {
         return repository.findAll();
+    }
+    public PercentageRecord getCurrentPercentage() {
+        return repository.findAll().stream()
+                .max(java.util.Comparator.comparing(PercentageRecord::getHour))
+                .orElse(null);
     }
 }

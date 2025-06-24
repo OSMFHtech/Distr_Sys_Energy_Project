@@ -2,7 +2,6 @@ package com.Distr_Sys.producer.web;
 
 import com.Distr_Sys.producer.model.ProductionRecord;
 import com.Distr_Sys.producer.service.ProducerService;
-import com.Distr_Sys.producer.web.ProductionRequest; // Import the top-level DTO
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -29,20 +28,22 @@ public class ProducerController {
 
     @PostMapping("/publish")
     public ResponseEntity<Map<String, Object>> publish(@RequestBody ProductionRequest request) {
+        if (request.getProducedKw() <= 0) {
+            return ResponseEntity.badRequest().body(Map.of("error", "producedKw must be positive"));
+        }
         ProductionRecord rec = service.produce(request.getProducedKw());
         return ResponseEntity.ok(Map.of(
                 "message", "Message has been published",
                 "id", rec.getId(),
                 "timestamp", rec.getDatetime(),
-                "producedKw", rec.getKwh()
+                "producedKw", String.format("%.3f", rec.getKwh())
         ));
     }
 
-    // For local testing: triggers publish logic via GET
     @GetMapping("/publish/test")
     public ResponseEntity<Map<String, Object>> publishTest() {
         ProductionRequest request = new ProductionRequest();
-        request.setProducedKw(5); // test value
+        request.setProducedKw(5);
         return publish(request);
     }
 }
