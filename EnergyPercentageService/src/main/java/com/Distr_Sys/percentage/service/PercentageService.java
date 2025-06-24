@@ -35,7 +35,6 @@ public class PercentageService {
         );
         double totalUsed = msg.getCommunityUsed() + msg.getGridUsed();
 
-        // Fix: Cap at 100%, show 0% if nothing produced
         double communityDepleted = (msg.getCommunityProduced() == 0)
                 ? 0.0
                 : Math.min(100.0, (msg.getCommunityUsed() / msg.getCommunityProduced()) * 100.0);
@@ -55,6 +54,7 @@ public class PercentageService {
     public List<PercentageRecord> getAllPercentages() {
         return repository.findAll();
     }
+
     public PercentageRecord getCurrentPercentage() {
         return repository.findAll().stream()
                 .max(java.util.Comparator.comparing(PercentageRecord::getHour))

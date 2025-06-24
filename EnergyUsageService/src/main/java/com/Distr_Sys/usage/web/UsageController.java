@@ -1,3 +1,4 @@
+
 package com.Distr_Sys.usage.web;
 
 import com.Distr_Sys.usage.model.UsageRecord;
@@ -7,7 +8,6 @@ import com.Distr_Sys.usage.service.UsageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
-
 import java.util.Map;
 
 @RestController
@@ -58,6 +58,7 @@ public class UsageController {
         raw.forEach((type, value) -> formatted.put(type.name(), String.format("%.3f", value)));
         return formatted;
     }
+
     @PostMapping("/aggregate/manual")
     public ResponseEntity<String> manualAggregate() {
         UsageRecord latest = usageService.findLatestRecord();
@@ -66,5 +67,12 @@ public class UsageController {
         }
         aggregationService.aggregateUsage(latest);
         return ResponseEntity.ok("Aggregation triggered");
+    }
+
+    // --- FIX: Add endpoint to aggregate all hours ---
+    @PostMapping("/aggregate/all")
+    public ResponseEntity<String> aggregateAll() {
+        aggregationService.aggregateAllHours();
+        return ResponseEntity.ok("Aggregated all hours");
     }
 }

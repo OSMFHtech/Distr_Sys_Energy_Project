@@ -4,6 +4,7 @@ import com.Distr_Sys.percentage.model.PercentageRecord;
 import com.Distr_Sys.percentage.service.PercentageService;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -26,5 +27,10 @@ public class PercentageController {
         result.put("community_depleted", String.format("%.2f", record.getCommunityDepleted()));
         result.put("grid_portion", String.format("%.2f", record.getGridPortion()));
         return result;
+    }
+
+    @GetMapping("/all")
+    public List<PercentageRecord> getAllPercentages() {
+        return percentageService.getAllPercentages();
     }
 }

@@ -54,7 +54,7 @@ services:
   usage:
     build: ./EnergyUsageService
     ports:
-      - "8186:8186"
+      - "8183:8183"
     depends_on:
       postgres:
         condition: service_healthy
@@ -84,7 +84,7 @@ services:
   energy-api:
     build: ./EnergyAPI
     ports:
-      - "8180:8180"
+      - "8187:8187"
     depends_on:
       producer:
         condition: service_started

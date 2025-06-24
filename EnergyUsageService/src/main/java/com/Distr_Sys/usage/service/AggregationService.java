@@ -1,3 +1,4 @@
+
 package com.Distr_Sys.usage.service;
 
 import com.Distr_Sys.usage.model.HourlyUsage;
@@ -13,9 +14,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AggregationService {
@@ -84,5 +84,41 @@ public class AggregationService {
             summary.put(type, value);
         }
         return summary;
+    }
+
+    // --- FIX: Batch aggregation for all hours ---
+    public void aggregateAllHours() {
+        List<UsageRecord> allRecords = usageRepository.findAll();
+        Set<LocalDateTime> uniqueHours = allRecords.stream()
+                .map(r -> r.getTimestamp().withMinute(0).withSecond(0).withNano(0))
+                .collect(Collectors.toSet());
+
+        for (LocalDateTime hour : uniqueHours) {
+            ZonedDateTime zdt = hour.atZone(ZoneId.systemDefault());
+            List<UsageRecord> hourRecords = allRecords.stream()
+                    .filter(r -> r.getTimestamp() != null &&
+                            r.getTimestamp().withMinute(0).withSecond(0).withNano(0).equals(hour))
+                    .toList();
+
+            double communityProduced = hourRecords.stream()
+                    .filter(r -> r.getType() == UsageType.PRODUCER && r.getProducedKw() != null)
+                    .mapToDouble(UsageRecord::getProducedKw)
+                    .sum();
+
+            double totalUserUsed = hourRecords.stream()
+                    .filter(r -> r.getType() == UsageType.USER && r.getUsedKw() != null)
+                    .mapToDouble(UsageRecord::getUsedKw)
+                    .sum();
+
+            double communityUsed = Math.min(communityProduced, totalUserUsed);
+            double gridUsed = Math.max(0, totalUserUsed - communityProduced);
+
+            HourlyUsage hourlyUsage = hourlyUsageRepository.findByUsageHour(hour)
+                    .orElse(new HourlyUsage(hour));
+            hourlyUsage.setCommunityProduced(communityProduced);
+            hourlyUsage.setCommunityUsed(communityUsed);
+            hourlyUsage.setGridUsed(gridUsed);
+            hourlyUsageRepository.save(hourlyUsage);
+        }
     }
 }
