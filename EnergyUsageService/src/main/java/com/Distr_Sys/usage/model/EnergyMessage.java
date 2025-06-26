@@ -1,29 +1,22 @@
-package com.Distr_Sys.common;
+package com.Distr_Sys.usage.model;
 
 import java.time.LocalDateTime;
 
 public class EnergyMessage {
-    public enum Type { USER, PRODUCER }
+    public enum Type { PRODUCER, USER }
 
     private Type type;
-    private Long userId;
+    private Long association;
     private LocalDateTime datetime;
     private double kwh;
 
     public EnergyMessage() {}
 
-    public EnergyMessage(Type type, Long userId, LocalDateTime datetime, double kwh) {
-        this.type = type;
-        this.userId = userId;
-        this.datetime = datetime;
-        this.kwh = kwh;
-    }
-
     public Type getType() { return type; }
     public void setType(Type type) { this.type = type; }
 
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public Long getAssociation() { return association; }
+    public void setAssociation(Long association) { this.association = association; }
 
     public LocalDateTime getDatetime() { return datetime; }
     public void setDatetime(LocalDateTime datetime) { this.datetime = datetime; }

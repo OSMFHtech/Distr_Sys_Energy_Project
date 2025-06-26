@@ -3,6 +3,7 @@ package com.Distr_Sys.usage.service;
 import com.Distr_Sys.usage.config.RabbitConfig;
 import com.Distr_Sys.usage.model.UsageRecord;
 import com.Distr_Sys.usage.model.UpdateMessage;
+import com.Distr_Sys.usage.model.EnergyMessage;
 import com.Distr_Sys.usage.repository.UsageRecordRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Service
 public class UsageListener {
@@ -22,13 +22,14 @@ public class UsageListener {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    // Message format: {"type":"USER"|"PRODUCER", "userId":..., "datetime":"...", "kwh":...}
     @RabbitListener(queues = RabbitConfig.QUEUE)
     @Transactional
-    public void handleMessage(Map<String, Object> message) {
-        String type = (String) message.get("type");
-        LocalDateTime datetime = LocalDateTime.parse((String) message.get("datetime"));
-        double kwh = ((Number) message.get("kwh")).doubleValue();
+    public void handleMessage(EnergyMessage message) {
+        System.out.println("Received message: " + message);
+
+        String type = message.getType().name();
+        LocalDateTime datetime = message.getDatetime();
+        double kwh = message.getKwh();
 
         LocalDateTime hour = datetime.withMinute(0).withSecond(0).withNano(0);
         UsageRecord record = usageRecordRepository.findByHour(hour)

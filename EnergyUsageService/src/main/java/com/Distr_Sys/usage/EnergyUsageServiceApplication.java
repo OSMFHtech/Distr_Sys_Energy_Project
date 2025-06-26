@@ -1,4 +1,4 @@
-package com.Distr_Sys.EnergyUsageService;
+package com.Distr_Sys.usage;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
