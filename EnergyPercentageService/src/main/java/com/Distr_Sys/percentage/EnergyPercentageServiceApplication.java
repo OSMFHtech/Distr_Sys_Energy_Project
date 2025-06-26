@@ -1,4 +1,4 @@
-package com.Distr_Sys.EnergyPercentageService;
+package com.Distr_Sys.percentage;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
