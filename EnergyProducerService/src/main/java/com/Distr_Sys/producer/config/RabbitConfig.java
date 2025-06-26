@@ -20,13 +20,13 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue queue() {
-        return new Queue(QUEUE);
+    public Queue usageQueue() {
+        return new Queue(QUEUE, true, false, false);
     }
 
     @Bean
-    public Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
+    public Binding usageBinding(Queue usageQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(usageQueue).to(exchange).with(ROUTING_KEY);
     }
 
     @Bean
@@ -39,14 +39,5 @@ public class RabbitConfig {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(jsonMessageConverter());
         return template;
-    }
-    @Bean
-    public Queue usageUpdateQueue() {
-        return new Queue("usage.update");
-    }
-
-    @Bean
-    public Binding usageUpdateBinding(Queue usageUpdateQueue, TopicExchange exchange) {
-        return BindingBuilder.bind(usageUpdateQueue).to(exchange).with("usage.update");
     }
 }

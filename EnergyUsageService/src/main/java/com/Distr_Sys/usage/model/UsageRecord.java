@@ -9,31 +9,32 @@ public class UsageRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
-    private LocalDateTime timestamp;
-    private Double usedKw;
-    private Double producedKw;
-
-    @Enumerated(EnumType.STRING)
-    private UsageType type;
+    private LocalDateTime hour;
+    private double communityProduced;
+    private double communityUsed;
+    private double gridUsed;
 
     public UsageRecord() {}
 
-    public UsageRecord(Long userId, LocalDateTime timestamp, Double usedKw) {
-        this.userId = userId;
-        this.timestamp = timestamp;
-        this.usedKw = usedKw;
+    public UsageRecord(LocalDateTime hour, double communityProduced, double communityUsed, double gridUsed) {
+        this.hour = hour;
+        this.communityProduced = communityProduced;
+        this.communityUsed = communityUsed;
+        this.gridUsed = gridUsed;
     }
 
     public Long getId() { return id; }
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
-    public Double getUsedKw() { return usedKw; }
-    public void setUsedKw(Double usedKw) { this.usedKw = usedKw; }
-    public Double getProducedKw() { return producedKw; }
-    public void setProducedKw(Double producedKw) { this.producedKw = producedKw; }
-    public UsageType getType() { return type; }
-    public void setType(UsageType type) { this.type = type; }
+    public void setId(Long id) { this.id = id; }
+
+    public LocalDateTime getHour() { return hour; }
+    public void setHour(LocalDateTime hour) { this.hour = hour; }
+
+    public double getCommunityProduced() { return communityProduced; }
+    public void setCommunityProduced(double communityProduced) { this.communityProduced = communityProduced; }
+
+    public double getCommunityUsed() { return communityUsed; }
+    public void setCommunityUsed(double communityUsed) { this.communityUsed = communityUsed; }
+
+    public double getGridUsed() { return gridUsed; }
+    public void setGridUsed(double gridUsed) { this.gridUsed = gridUsed; }
 }

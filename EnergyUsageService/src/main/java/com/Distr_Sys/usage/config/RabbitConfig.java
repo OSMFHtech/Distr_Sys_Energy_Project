@@ -13,7 +13,6 @@ public class RabbitConfig {
     public static final String EXCHANGE = "energy-exchange";
     public static final String ROUTING_KEY = "usage.new";
     public static final String QUEUE = "usage-queue";
-    public static final String HOURLY_UPDATE_ROUTING_KEY = "hourly.update";
 
     @Bean
     public TopicExchange exchange() {

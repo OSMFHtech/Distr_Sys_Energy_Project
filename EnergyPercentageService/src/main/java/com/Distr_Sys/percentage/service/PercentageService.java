@@ -1,14 +1,12 @@
 package com.Distr_Sys.percentage.service;
 
 import com.Distr_Sys.percentage.model.PercentageRecord;
-import com.Distr_Sys.percentage.shared.UpdateMessage;
+import com.Distr_Sys.percentage.model.UpdateMessage;
 import com.Distr_Sys.percentage.repository.PercentageRecordRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @Service
 public class PercentageService {
@@ -21,18 +19,8 @@ public class PercentageService {
     @RabbitListener(queues = "${percentage.rabbitmq.usage-update-queue}")
     @Transactional
     public void handleUpdate(UpdateMessage msg) {
-        if (msg == null) {
-            System.err.println("Received null UpdateMessage!");
-            return;
-        }
-        System.out.printf(
-                "Received UpdateMessage: hour=%d, produced=%.2f, used=%.2f, grid=%.2f%n",
-                msg.getHour(), msg.getCommunityProduced(), msg.getCommunityUsed(), msg.getGridUsed()
-        );
-
-        LocalDateTime hour = LocalDateTime.ofInstant(
-                java.time.Instant.ofEpochMilli(msg.getHour()), ZoneId.systemDefault()
-        );
+        if (msg == null) return;
+        LocalDateTime hour = LocalDateTime.parse(msg.getHour());
         double totalUsed = msg.getCommunityUsed() + msg.getGridUsed();
 
         double communityDepleted = (msg.getCommunityProduced() == 0)
@@ -48,16 +36,5 @@ public class PercentageService {
         record.setGridPortion(gridPortion);
 
         repository.save(record);
-        System.out.println("Saved PercentageRecord for hour: " + hour);
-    }
-
-    public List<PercentageRecord> getAllPercentages() {
-        return repository.findAll();
-    }
-
-    public PercentageRecord getCurrentPercentage() {
-        return repository.findAll().stream()
-                .max(java.util.Comparator.comparing(PercentageRecord::getHour))
-                .orElse(null);
     }
 }

@@ -1,56 +1,43 @@
 package com.Distr_Sys.producer.service;
 
+import com.Distr_Sys.producer.model.EnergyMessage;
 import com.Distr_Sys.producer.config.RabbitConfig;
-import com.Distr_Sys.producer.model.ProductionRecord;
-import com.Distr_Sys.producer.repository.ProductionRepository;
-import com.Distr_Sys.common.EnergyMessage;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Random;
 
 @Service
 public class ProducerService {
-    private final ProductionRepository repo;
     private final RabbitTemplate rabbit;
-    private static final Long PRODUCER_ID = 1L;
+    private final Random random = new Random();
 
-    public ProducerService(ProductionRepository repo, RabbitTemplate rabbit) {
-        this.repo = repo;
+    public ProducerService(RabbitTemplate rabbit) {
         this.rabbit = rabbit;
     }
 
-    public ProductionRecord produce(double kw) {
-        LocalDateTime now = LocalDateTime.now();
-        ProductionRecord rec = new ProductionRecord(
-                PRODUCER_ID,
-                kw,
-                now
-        );
-        rec = repo.save(rec);
-
+    @Scheduled(fixedRate = 5000)
+    public void sendProductionMessage() {
+        double kwh = generateKwhForCurrentTime();
         EnergyMessage msg = new EnergyMessage(
                 EnergyMessage.Type.PRODUCER,
-                PRODUCER_ID,
-                now,
-                rec.getKwh()
+                1L,
+                LocalDateTime.now(),
+                kwh
         );
         rabbit.convertAndSend(RabbitConfig.EXCHANGE, RabbitConfig.ROUTING_KEY, msg);
-        System.out.printf("[Producer] Sent message: type=%s, userId=%d, kwh=%.3f, datetime=%s%n",
-                msg.getType(), msg.getUserId(), msg.getKwh(), msg.getDatetime());
-        return rec;
+        System.out.printf("[Producer] Sent: %.3f kWh at %s%n", kwh, msg.getDatetime());
     }
 
-    public ProductionRecord latest() {
-        return repo.findTopByOrderByDatetimeDesc()
-                .orElse(new ProductionRecord(
-                        PRODUCER_ID,
-                        0.0,
-                        LocalDateTime.now()
-                ));
-    }
-
-    public List<ProductionRecord> findAll() {
-        return repo.findAll();
+    private double generateKwhForCurrentTime() {
+        int hour = LocalDateTime.now().getHour();
+        // Simulate more production during midday
+        if (hour >= 10 && hour <= 16) {
+            return 0.004 + random.nextDouble() * 0.002;
+        } else {
+            return 0.001 + random.nextDouble() * 0.001;
+        }
     }
 }

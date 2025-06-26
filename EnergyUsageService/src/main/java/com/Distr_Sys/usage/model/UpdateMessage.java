@@ -1,15 +1,15 @@
-package com.Distr_Sys.usage.shared;
+package com.Distr_Sys.usage.model;
 
 import java.io.Serializable;
 
 public class UpdateMessage implements Serializable {
-    private long hour;
+    private String hour;
     private double communityProduced;
     private double communityUsed;
     private double gridUsed;
 
-    public long getHour() { return hour; }
-    public void setHour(long hour) { this.hour = hour; }
+    public String getHour() { return hour; }
+    public void setHour(String hour) { this.hour = hour; }
     public double getCommunityProduced() { return communityProduced; }
     public void setCommunityProduced(double communityProduced) { this.communityProduced = communityProduced; }
     public double getCommunityUsed() { return communityUsed; }

@@ -2,21 +2,16 @@ package org.example.demo;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-
 public class EnergyGUIApp extends Application {
-
     @Override
-    public void start(Stage primaryStage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/demo/EnergyGUI.fxml"));
-        BorderPane root = loader.load();
-        Scene scene = new Scene(root, 800, 600);
-        primaryStage.setTitle("Energy Community Monitor");
-        primaryStage.setScene(scene);
+    public void start(Stage primaryStage) throws Exception {
+        Parent root = FXMLLoader.load(getClass().getResource("/org/example/demo/EnergyGUI.fxml"));
+        primaryStage.setTitle("Community Energy Dashboard");
+        primaryStage.setScene(new Scene(root, 600, 400));
         primaryStage.show();
     }
 

@@ -26,15 +26,10 @@ services:
     ports:
       - "8181:8181"
     depends_on:
-      postgres:
-        condition: service_healthy
       rabbitmq:
         condition: service_started
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
-      SPRING_DATASOURCE_USERNAME: energyuser
-      SPRING_DATASOURCE_PASSWORD: energypass
 
   user:
     build: ./EnergyUserService
