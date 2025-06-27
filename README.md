@@ -2,39 +2,44 @@
 
 This repository contains six Spring Boot microservices wired together:
 
-- EnergyProducerService (port 8181)
-example :  curl.exe -X POST "http://localhost:8181/producer/publish" -H "Content-Type: application/json" -d '{\"producedKw\":15}'
-or : curl.exe -X POST "http://localhost:8181/producer/publish" -H "Content-Type: application/json" -d "{\"producedKw\":10}"
-- EnergyUserService (port 8182)
-  example : Invoke-RestMethod -Uri "http://localhost:8182/user/profile" -Method POST -Body '{"name":"John Doe","email":"john@example.com"}' -ContentType "application/json"
-  or Invoke-WebRequest -Uri "http://localhost:8182/user/consume" `
->>   -Method Post `
->>   -Headers @{ "Content-Type" = "application/json" } `
->>   -Body '{"userId":1,"m":5}'
+the structure of the component diagram from bottom to top, as you requested:
 
-- EnergyUsageService (port 8183)
-  example : curl.exe -X POST "http://localhost:8183/usage/publish?userId=1&usedKw=10"
-  or : curl "http://localhost:8183/usage/aggregate/by-type"
-  or :$response = Invoke-WebRequest -Uri "http://localhost:8183/usage/aggregate/by-type" $response
-- EnergyPercentageService (port 8184)
-- EnergyAPI (port 8180)
-- EnergyGUI (JavaFX, port 8185)
+    Energy Producer / Energy User
 
-Use Docker Compose to build and run all services together.
+        producer message / user message --> RabbitMQ
 
-## Quick Start
+    RabbitMQ
 
-```bash
-docker-compose up --build
-```
+        update message --> Current Percentage Service
 
-Ensure RabbitMQ is accessible at `rabbitmq:5672` and its UI at `http://localhost:15672`.
+        producer/user message --> Usage Service
 
-See `PROJECT_IMPORTANT_STEPS.md` for detailed setup.
+    Current Percentage Service
 
+        update percentage table --> PostgreSQL
+
+    Usage Service
+
+        update usage table --> PostgreSQL
+
+    PostgreSQL
+
+        read tables --> Spring Boot REST API
+
+    Spring Boot REST API
+
+        GET /energy/current --> JavaFX GUI
+
+        GET /energy/historical?start=...&end=... --> JavaFX GUI
+
+    JavaFX GUI
 
 database : docker exec -it $(docker ps -qf "ancestor=postgres:15") psql -U energyuser -d energydb
 
 \dt
 SELECT * FROM usage_record;
 SELECT * FROM hourly_usage;
+
+DELETE FROM hourly_usage;
+-- If you have a table for current percentage, e.g.:
+-- DELETE FROM current_percentage;
