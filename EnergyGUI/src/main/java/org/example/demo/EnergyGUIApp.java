@@ -11,7 +11,7 @@ public class EnergyGUIApp extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/org/example/demo/EnergyGUI.fxml"));
         primaryStage.setTitle("Community Energy Dashboard");
-        primaryStage.setScene(new Scene(root, 600, 400));
+        primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.show();
     }
 

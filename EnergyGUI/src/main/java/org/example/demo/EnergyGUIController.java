@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 
@@ -13,8 +13,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.IntStream;
 
 public class EnergyGUIController {
 
@@ -25,13 +25,51 @@ public class EnergyGUIController {
     @FXML private Text gridUsedText;
     @FXML private DatePicker startDatePicker;
     @FXML private DatePicker endDatePicker;
+    @FXML private ComboBox<String> startHourBox;
+    @FXML private ComboBox<String> endHourBox;
+    @FXML private Text startDisplayText;
+    @FXML private Text endDisplayText;
     @FXML private ImageView infoImage;
 
     private static final String BASE_URL = "http://localhost:8187/energy";
 
     @FXML
     public void initialize() {
+        IntStream.range(0, 24)
+                .mapToObj(i -> String.format("%02d:00", i))
+                .forEach(h -> {
+                    startHourBox.getItems().add(h);
+                    endHourBox.getItems().add(h);
+                });
+        startHourBox.getSelectionModel().select("00:00");
+        endHourBox.getSelectionModel().select("23:00");
+
+        startDatePicker.valueProperty().addListener((obs, oldV, newV) -> updateStartDisplay());
+        startHourBox.valueProperty().addListener((obs, oldV, newV) -> updateStartDisplay());
+        endDatePicker.valueProperty().addListener((obs, oldV, newV) -> updateEndDisplay());
+        endHourBox.valueProperty().addListener((obs, oldV, newV) -> updateEndDisplay());
+
         handleRefresh();
+    }
+
+    private void updateStartDisplay() {
+        LocalDate date = startDatePicker.getValue();
+        String hour = startHourBox.getValue();
+        if (date != null && hour != null) {
+            startDisplayText.setText(date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " " + hour);
+        } else {
+            startDisplayText.setText("");
+        }
+    }
+
+    private void updateEndDisplay() {
+        LocalDate date = endDatePicker.getValue();
+        String hour = endHourBox.getValue();
+        if (date != null && hour != null) {
+            endDisplayText.setText(date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " " + hour);
+        } else {
+            endDisplayText.setText("");
+        }
     }
 
     @FXML
@@ -51,35 +89,40 @@ public class EnergyGUIController {
                 double communityDepleted = node.get("communityDepleted").asDouble();
                 double gridPortion = node.get("gridPortion").asDouble();
 
-                communityPoolText.setText(String.format("%.2f%% used", communityDepleted));
+                communityPoolText.setText(String.format("%.2f%%", communityDepleted));
                 gridPortionText.setText(String.format("%.2f%%", gridPortion));
+            } else {
+                communityPoolText.setText("N/A");
+                gridPortionText.setText("N/A");
             }
-
-            // Optionally fetch latest hourly usage for kWh values
-            updateLatestUsage();
-
         } catch (Exception e) {
             communityPoolText.setText("N/A");
             gridPortionText.setText("N/A");
         }
+        // Clear energy data fields
+        producedText.setText("");
+        usedText.setText("");
+        gridUsedText.setText("");
     }
 
     @FXML
     public void handleShowData() {
         LocalDate start = startDatePicker.getValue();
         LocalDate end = endDatePicker.getValue();
-        if (start == null || end == null) {
-            producedText.setText("Select dates");
+        String startHour = startHourBox.getValue();
+        String endHour = endHourBox.getValue();
+        if (start == null || end == null || startHour == null || endHour == null) {
+            producedText.setText("Select dates/hours");
             usedText.setText("");
             gridUsedText.setText("");
             return;
         }
         try {
-            String url = String.format("%s/historical?start=%sT00:00:00&end=%sT23:59:59",
-                    BASE_URL,
-                    start.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                    end.format(DateTimeFormatter.ISO_LOCAL_DATE)
-            );
+            String startStr = start.format(DateTimeFormatter.ISO_LOCAL_DATE) + "T" + startHour;
+            String endStr = end.format(DateTimeFormatter.ISO_LOCAL_DATE) + "T" + endHour;
+            String url = String.format("%s/historical?start=%s&end=%s",
+                    BASE_URL, startStr, endStr);
+
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -103,31 +146,6 @@ public class EnergyGUIController {
             producedText.setText("Error");
             usedText.setText("");
             gridUsedText.setText("");
-        }
-    }
-
-    private void updateLatestUsage() {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "/historical"))
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode arr = mapper.readTree(response.body());
-
-            if (arr.isArray() && arr.size() > 0) {
-                JsonNode latest = arr.get(arr.size() - 1);
-                producedText.setText(String.format("%.3f kWh", latest.get("communityProduced").asDouble()));
-                usedText.setText(String.format("%.3f kWh", latest.get("communityUsed").asDouble()));
-                gridUsedText.setText(String.format("%.3f kWh", latest.get("gridUsed").asDouble()));
-            }
-        } catch (Exception e) {
-            producedText.setText("N/A");
-            usedText.setText("N/A");
-            gridUsedText.setText("N/A");
         }
     }
 }
