@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class UpdateListener {
@@ -20,8 +21,12 @@ public class UpdateListener {
     @RabbitListener(queues = "${percentage.rabbitmq.usage-update-queue:usage.update}")
     @Transactional
     public void handleUpdate(UpdateMessage message) {
-        // Parse hour
-        LocalDateTime hour = LocalDateTime.parse(message.getHour());
+        if (message.getHour() == null) {
+            // Optionally log or handle this case
+            return;
+        }
+        // Parse hour using ISO format
+        LocalDateTime hour = LocalDateTime.parse(message.getHour(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
         double produced = message.getCommunityProduced();
         double used = message.getCommunityUsed();
@@ -37,6 +42,7 @@ public class UpdateListener {
         // Only keep one record per hour (overwrite if exists)
         PercentageRecord record = percentageRecordRepository.findByHour(hour)
                 .orElse(new PercentageRecord(hour, 0, 0));
+        record.setHour(hour);
         record.setCommunityDepleted(communityDepleted);
         record.setGridPortion(gridPortion);
 

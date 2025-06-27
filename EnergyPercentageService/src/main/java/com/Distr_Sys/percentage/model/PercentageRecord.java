@@ -4,12 +4,15 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "percentage_record", uniqueConstraints = @UniqueConstraint(columnNames = "hour"))
 public class PercentageRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private LocalDateTime hour;
+
     private double communityDepleted;
     private double gridPortion;
 

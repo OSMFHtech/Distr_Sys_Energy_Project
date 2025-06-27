@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class UsageListener {
@@ -27,8 +28,13 @@ public class UsageListener {
     public void handleMessage(EnergyMessage message) {
         System.out.println("Received message: " + message);
 
-        String type = message.getType().name();
         LocalDateTime datetime = message.getDatetime();
+        if (datetime == null) {
+            System.err.println("Received message with null datetime, skipping.");
+            return;
+        }
+
+        String type = message.getType().name();
         double kwh = message.getKwh();
 
         LocalDateTime hour = datetime.withMinute(0).withSecond(0).withNano(0);
@@ -48,7 +54,8 @@ public class UsageListener {
         usageRecordRepository.save(record);
 
         UpdateMessage update = new UpdateMessage();
-        update.setHour(hour.toString());
+        // Use ISO format for hour
+        update.setHour(hour.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         update.setCommunityProduced(record.getCommunityProduced());
         update.setCommunityUsed(record.getCommunityUsed());
         update.setGridUsed(record.getGridUsed());

@@ -4,12 +4,15 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "hourly_usage", uniqueConstraints = @UniqueConstraint(columnNames = "usage_hour"))
 public class UsageRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "usage_hour", nullable = false, unique = true)
     private LocalDateTime hour;
+
     private double communityProduced;
     private double communityUsed;
     private double gridUsed;
