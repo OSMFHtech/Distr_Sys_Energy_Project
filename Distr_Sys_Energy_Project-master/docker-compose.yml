@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      retries: 5
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: energydb
+      POSTGRES_USER: energyuser
+      POSTGRES_PASSWORD: energypass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U energyuser -d energydb"]
+      interval: 10s
+      retries: 5
+
+  producer:
+    build: ./EnergyProducerService
+    container_name: producer
+    expose:
+      - "8191"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  user:
+    build: ./EnergyUserService
+    container_name: user
+    expose:
+      - "8192"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  usage:
+    build: ./EnergyUsageService
+    container_name: usage
+    expose:
+      - "8183"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
+      SPRING_DATASOURCE_USERNAME: energyuser
+      SPRING_DATASOURCE_PASSWORD: energypass
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  percentage:
+    build: ./EnergyPercentageService
+    container_name: percentage
+    expose:
+      - "8184"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
+      SPRING_DATASOURCE_USERNAME: energyuser
+      SPRING_DATASOURCE_PASSWORD: energypass
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  energy-api:
+    build: ./EnergyAPI
+    container_name: energy-api
+    ports:
+      - "8189:8189"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energydb
+      SPRING_DATASOURCE_USERNAME: energyuser
+      SPRING_DATASOURCE_PASSWORD: energypass
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  energy-gui:
+    build: ./EnergyGUI
+    container_name: energy-gui
+    ports:
+      - "8185:8185"
+    environment:
+      API_BASE_URL: http://energy-api:8187
+    depends_on:
+      energy-api:
+        condition: service_healthy
+
+volumes:
+  pgdata:

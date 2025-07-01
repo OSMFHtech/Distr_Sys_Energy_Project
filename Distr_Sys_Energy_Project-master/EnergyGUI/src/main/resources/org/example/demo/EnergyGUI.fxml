@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.demo.EnergyGUIController"
+            prefWidth="800" prefHeight="600">
+
+    <left>
+        <VBox spacing="22.0">
+            <padding>
+                <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
+            </padding>
+            <!-- Community Pool and Grid Portion -->
+            <GridPane hgap="10" vgap="16" alignment="CENTER_LEFT">
+                <Label text="Community Pool" style="-fx-font-size: 14px;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Text fx:id="communityPoolText" style="-fx-font-size: 14px;" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Label text="used" style="-fx-font-size: 14px;" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                <Label text="Grid Portion" style="-fx-font-size: 14px;" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Text fx:id="gridPortionText" style="-fx-font-size: 14px;" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            </GridPane>
+            <Button text="Refresh" onAction="#handleRefresh" maxWidth="140"/>
+            <Separator />
+            <!-- Time Period -->
+            <Label text="Time Period" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+            <GridPane hgap="10" vgap="10" alignment="CENTER_LEFT">
+                <Label text="Start" style="-fx-font-size: 13px;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <DatePicker fx:id="startDatePicker"/>
+                    <ComboBox fx:id="startHourBox" prefWidth="70"/>
+                </HBox>
+                <Text fx:id="startDisplayText" style="-fx-font-size: 13px;" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                <Label text="End" style="-fx-font-size: 13px;" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <DatePicker fx:id="endDatePicker"/>
+                    <ComboBox fx:id="endHourBox" prefWidth="70"/>
+                </HBox>
+                <Text fx:id="endDisplayText" style="-fx-font-size: 13px;" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+            </GridPane>
+            <Button text="Show Data" onAction="#handleShowData" maxWidth="140"/>
+            <Separator />
+            <!-- Energy Data -->
+            <Label text="Energy Data" style="-fx-font-weight: bold; -fx-font-size: 13px;"/>
+            <GridPane hgap="10" vgap="10" alignment="CENTER_LEFT">
+                <Label text="Community produced" style="-fx-font-size: 13px;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Text fx:id="producedText" style="-fx-font-size: 13px;" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Label text="Community used" style="-fx-font-size: 13px;" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Text fx:id="usedText" style="-fx-font-size: 13px;" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Label text="Grid used" style="-fx-font-size: 13px;" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <Text fx:id="gridUsedText" style="-fx-font-size: 13px;" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            </GridPane>
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane alignment="CENTER">
+            <ImageView fx:id="infoImage" fitWidth="220" preserveRatio="true">
+                <image>
+                    <Image url="@../../../Images/App_Logo.png" />
+                </image>
+            </ImageView>
+        </StackPane>
+    </center>
+</BorderPane>
