@@ -137,7 +137,8 @@ public class EnergyGUIController {
             for (JsonNode entry : arr) {
                 produced += entry.get("communityProduced").asDouble();
                 used += entry.get("communityUsed").asDouble();
-                grid += entry.get("gridUsed").asDouble();
+                // Use gridUsedDisplay if present, else fallback to gridUsed
+                grid += entry.has("gridUsedDisplay") ? entry.get("gridUsedDisplay").asDouble() : entry.get("gridUsed").asDouble();
             }
             producedText.setText(String.format("%.3f kWh", produced));
             usedText.setText(String.format("%.3f kWh", used));

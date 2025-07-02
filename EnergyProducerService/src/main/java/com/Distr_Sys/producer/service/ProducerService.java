@@ -6,10 +6,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Random;
 
 @Service
@@ -17,11 +15,11 @@ public class ProducerService {
     private final RabbitTemplate rabbit;
     private final Random random = new Random();
 
-    @Value("${weather.api.key}")
+    @Value("${weather.api.key:dummy}")
     private String weatherApiKey;
-    @Value("${weather.api.lat}")
+    @Value("${weather.api.lat:48.2}")
     private String lat;
-    @Value("${weather.api.lon}")
+    @Value("${weather.api.lon:16.3}")
     private String lon;
 
     public ProducerService(RabbitTemplate rabbit) {
@@ -42,30 +40,27 @@ public class ProducerService {
     }
 
     private double getSunlightFactor() {
-        String url = String.format(
-                "https://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&appid=%s",
-                lat, lon, weatherApiKey
-        );
-        RestTemplate restTemplate = new RestTemplate();
-        try {
-            Map response = restTemplate.getForObject(url, Map.class);
-            Map<String, Object> clouds = (Map<String, Object>) response.get("clouds");
-            int cloudiness = (int) clouds.get("all"); // 0 (clear) to 100 (overcast)
-            return 1.0 - (cloudiness / 100.0); // 1.0 = full sun, 0.0 = fully cloudy
-        } catch (Exception e) {
-            return 0.7; // fallback if API fails
+        int hour = LocalDateTime.now().getHour();
+        if (hour >= 7 && hour <= 18) {
+            double peak = Math.sin(Math.PI * (hour - 7) / 11);
+            return 0.5 + 0.5 * peak;
         }
+        return 0.05; // Lower at night
     }
 
     private double generateKwhForCurrentTime() {
         int hour = LocalDateTime.now().getHour();
         double sunlight = getSunlightFactor();
-        double base;
+        double basePerHour;
         if (hour >= 10 && hour <= 16) {
-            base = 0.004 + random.nextDouble() * 0.002;
+            basePerHour = 8.0 + random.nextDouble() * 3.0; // 8-11 kWh/h at peak
+        } else if (hour >= 7 && hour < 10 || hour > 16 && hour <= 18) {
+            basePerHour = 3.0 + random.nextDouble() * 2.0; // 3-5 kWh/h
         } else {
-            base = 0.001 + random.nextDouble() * 0.001;
+            basePerHour = 0.2 + random.nextDouble() * 0.3; // 0.2-0.5 kWh/h at night
         }
-        return base * sunlight;
+        double basePer5Sec = basePerHour / 720.0;
+        double kwh = basePer5Sec * sunlight;
+        return Math.round(kwh * 1000.0) / 1000.0;
     }
 }

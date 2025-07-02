@@ -30,11 +30,14 @@ public class UserMessageSender {
 
     private double generatePlausibleKwh(LocalDateTime now) {
         int hour = now.getHour();
-        double base;
-        if (hour >= 6 && hour < 9) base = 2.0;      // Morning peak
-        else if (hour >= 17 && hour < 22) base = 2.5; // Evening peak
-        else if (hour >= 0 && hour < 6) base = 0.3;   // Night
-        else base = 1.0;                              // Day
-        return base + random.nextDouble() * base * 0.5;
+        double basePerHour;
+        if (hour >= 6 && hour < 9) basePerHour = 12.0 + random.nextDouble() * 3.0; // 12-15 kWh/h
+        else if (hour >= 17 && hour < 22) basePerHour = 13.0 + random.nextDouble() * 3.0; // 13-16 kWh/h
+        else if (hour >= 0 && hour < 6) basePerHour = 3.0 + random.nextDouble() * 1.0; // 3-4 kWh/h
+        else basePerHour = 9.0 + random.nextDouble() * 3.0; // 9-12 kWh/h
+        double basePer5Sec = basePerHour / 720.0;
+        double kwh = basePer5Sec + random.nextDouble() * basePer5Sec * 0.5;
+        if (random.nextDouble() < 0.15) kwh *= 1.2;
+        return Math.round(kwh * 1000.0) / 1000.0;
     }
 }

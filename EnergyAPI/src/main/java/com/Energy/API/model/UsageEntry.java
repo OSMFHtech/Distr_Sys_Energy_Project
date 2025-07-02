@@ -17,4 +17,9 @@ public class UsageEntry {
     private double communityProduced;
     private double communityUsed;
     private double gridUsed;
+
+    @Transient
+    public double getGridUsedDisplay() {
+        return Math.round((gridUsed / 100.0) * 1000.0) / 1000.0;
+    }
 }

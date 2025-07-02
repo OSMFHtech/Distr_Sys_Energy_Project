@@ -22,24 +22,27 @@ public class UpdateListener {
     @Transactional
     public void handleUpdate(UpdateMessage message) {
         if (message.getHour() == null) {
-            // Optionally log or handle this case
             return;
         }
-        // Parse hour using ISO format
         LocalDateTime hour = LocalDateTime.parse(message.getHour(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
         double produced = message.getCommunityProduced();
         double used = message.getCommunityUsed();
-        double grid = message.getGridUsed();
+        double grid = message.getGridUsed(); // use for calculations
 
-        // Community depleted: 100% if all produced energy is used, else (used/produced)*100
-        double communityDepleted = produced == 0 ? 0 : Math.min(100.0, (used / produced) * 100.0);
-
-        // Grid portion: (grid used) / (community used + grid used) * 100
+        double communityDepleted = (produced > 0) ? Math.min(100.0, (used / produced) * 100.0) : 0.0;
         double totalUsed = used + grid;
-        double gridPortion = totalUsed == 0 ? 0 : (grid / totalUsed) * 100.0;
+        double gridPortion = (totalUsed > 0) ? Math.min(100.0, (grid / totalUsed) * 100.0) : 0.0;
 
-        // Only keep one record per hour (overwrite if exists)
+        // Round to 2 decimals for display
+        communityDepleted = Math.round(communityDepleted * 100.0) / 100.0;
+        gridPortion = Math.round(gridPortion * 100.0) / 100.0;
+
+        // Ensure gridPortion is never 0% if grid was used
+        if (grid > 0 && gridPortion == 0.0) {
+            gridPortion = 0.01;
+        }
+
         PercentageRecord record = percentageRecordRepository.findByHour(hour)
                 .orElse(new PercentageRecord(hour, 0, 0));
         record.setHour(hour);

@@ -7,6 +7,7 @@ public class UpdateMessage implements Serializable {
     private double communityProduced;
     private double communityUsed;
     private double gridUsed;
+    private double gridUsedDisplay; // for display only
 
     public String getHour() { return hour; }
     public void setHour(String hour) { this.hour = hour; }
@@ -16,4 +17,6 @@ public class UpdateMessage implements Serializable {
     public void setCommunityUsed(double communityUsed) { this.communityUsed = communityUsed; }
     public double getGridUsed() { return gridUsed; }
     public void setGridUsed(double gridUsed) { this.gridUsed = gridUsed; }
+    public double getGridUsedDisplay() { return gridUsedDisplay; }
+    public void setGridUsedDisplay(double gridUsedDisplay) { this.gridUsedDisplay = gridUsedDisplay; }
 }

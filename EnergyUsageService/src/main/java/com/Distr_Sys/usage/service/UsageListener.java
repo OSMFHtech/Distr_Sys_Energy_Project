@@ -26,13 +26,8 @@ public class UsageListener {
     @RabbitListener(queues = RabbitConfig.QUEUE)
     @Transactional
     public void handleMessage(EnergyMessage message) {
-        System.out.println("Received message: " + message);
-
         LocalDateTime datetime = message.getDatetime();
-        if (datetime == null) {
-            System.err.println("Received message with null datetime, skipping.");
-            return;
-        }
+        if (datetime == null) return;
 
         String type = message.getType().name();
         double kwh = message.getKwh();
@@ -42,23 +37,31 @@ public class UsageListener {
                 .orElse(new UsageRecord(hour, 0, 0, 0));
 
         if ("PRODUCER".equals(type)) {
-            record.setCommunityProduced(record.getCommunityProduced() + kwh);
+            // Multiply by 10 for produced
+            record.setCommunityProduced(record.getCommunityProduced() + kwh * 10);
         } else if ("USER".equals(type)) {
+            // Multiply by 10 for used
             double available = record.getCommunityProduced() - record.getCommunityUsed();
-            double fromCommunity = Math.min(kwh, Math.max(available, 0));
-            double fromGrid = kwh - fromCommunity;
+            double fromCommunity = Math.min(kwh * 10, Math.max(available, 0));
+            double fromGrid = kwh - (fromCommunity / 10.0); // gridUsed remains in original kWh
+
             record.setCommunityUsed(record.getCommunityUsed() + fromCommunity);
             record.setGridUsed(record.getGridUsed() + fromGrid);
         }
 
+        // Round all to 3 decimals
+        record.setCommunityProduced(Math.round(record.getCommunityProduced() * 1000.0) / 1000.0);
+        record.setCommunityUsed(Math.round(record.getCommunityUsed() * 1000.0) / 1000.0);
+        record.setGridUsed(Math.round(record.getGridUsed() * 1000.0) / 1000.0);
+
         usageRecordRepository.save(record);
 
         UpdateMessage update = new UpdateMessage();
-        // Use ISO format for hour
         update.setHour(hour.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         update.setCommunityProduced(record.getCommunityProduced());
         update.setCommunityUsed(record.getCommunityUsed());
         update.setGridUsed(record.getGridUsed());
+        update.setGridUsedDisplay(record.getGridUsed() / 100.0); // for display
 
         rabbitTemplate.convertAndSend(RabbitConfig.EXCHANGE, "usage.update", update);
     }

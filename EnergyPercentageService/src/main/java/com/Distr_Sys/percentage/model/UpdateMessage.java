@@ -5,6 +5,7 @@ public class UpdateMessage {
     private double communityProduced;
     private double communityUsed;
     private double gridUsed;
+    private double gridUsedDisplay; // add this
 
     public UpdateMessage() {}
 
@@ -19,4 +20,7 @@ public class UpdateMessage {
 
     public double getGridUsed() { return gridUsed; }
     public void setGridUsed(double gridUsed) { this.gridUsed = gridUsed; }
+
+    public double getGridUsedDisplay() { return gridUsedDisplay; }
+    public void setGridUsedDisplay(double gridUsedDisplay) { this.gridUsedDisplay = gridUsedDisplay; }
 }
