@@ -55,7 +55,7 @@ public class UsageListener {
         record.setGridUsed(Math.round(record.getGridUsed() * 1000.0) / 1000.0);
 
         usageRecordRepository.save(record);
-
+        // Create and send update message
         UpdateMessage update = new UpdateMessage();
         update.setHour(hour.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         update.setCommunityProduced(record.getCommunityProduced());
