@@ -12,7 +12,7 @@ import java.util.Random;
 
 @Service
 public class ProducerService {
-    private final RabbitTemplate rabbit;
+    private final RabbitTemplate rabbit; // RabbitMQ-Template für das Senden von Nachrichten
     private final Random random = new Random();
 
     @Value("${weather.api.key:dummy}")
