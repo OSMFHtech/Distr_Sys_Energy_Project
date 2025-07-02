@@ -13,14 +13,18 @@ public class EnergyMessage {
     public EnergyMessage() {}
 
     public Type getType() { return type; }
-    public void setType(Type type) { this.type = type; }
+    public void setType(Type type) {
+        this.type = type; }
 
     public Long getAssociation() { return association; }
-    public void setAssociation(Long association) { this.association = association; }
+    public void setAssociation(Long association) {
+        this.association = association; }
 
     public LocalDateTime getDatetime() { return datetime; }
-    public void setDatetime(LocalDateTime datetime) { this.datetime = datetime; }
+    public void setDatetime(LocalDateTime datetime) {
+        this.datetime = datetime; }
 
     public double getKwh() { return kwh; }
-    public void setKwh(double kwh) { this.kwh = kwh; }
+    public void setKwh(double kwh) {
+        this.kwh = kwh; }
 }
