@@ -11,11 +11,11 @@ public class UsageRecord {
     private Long id;
 
     @Column(name = "usage_hour", nullable = false, unique = true)
-    private LocalDateTime hour;
 
-    private double communityProduced;
-    private double communityUsed;
-    private double gridUsed;
+    private LocalDateTime hour;
+    private double communityProduced; // Gesamtproduktion der Community in kWh
+    private double communityUsed;     // Gesamtverbrauch der Community in kWh
+    private double gridUsed;          // Aus dem Netz bezogene Energie in kWh
 
     public UsageRecord() {}
 
