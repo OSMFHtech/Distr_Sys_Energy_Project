@@ -16,11 +16,14 @@ public class RabbitConfig {
 
     @Bean
     public TopicExchange exchange() {
+
         return new TopicExchange(EXCHANGE);
     }
 
+
     @Bean
     public Queue usageQueue() {
+
         return new Queue(QUEUE, true, false, false);
     }
 
