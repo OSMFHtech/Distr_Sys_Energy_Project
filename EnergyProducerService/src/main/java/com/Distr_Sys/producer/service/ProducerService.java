@@ -6,6 +6,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -40,12 +42,31 @@ public class ProducerService {
     }
 
     private double getSunlightFactor() {
-        int hour = LocalDateTime.now().getHour();
-        if (hour >= 7 && hour <= 18) {
-            double peak = Math.sin(Math.PI * (hour - 7) / 11);
-            return 0.5 + 0.5 * peak;
+        try {
+            String url = String.format(
+                    "https://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&appid=%s",
+                    lat, lon, weatherApiKey
+            );
+            RestTemplate restTemplate = new RestTemplate();
+            String response = restTemplate.getForObject(url, String.class);
+            JSONObject json = new JSONObject(response);
+            int cloudiness = json.getJSONObject("clouds").getInt("all"); // 0-100
+            double sunlight = 1.0 - (cloudiness / 100.0); // 1.0 = clear, 0.0 = fully cloudy
+
+            int hour = LocalDateTime.now().getHour();
+            double timeFactor = (hour >= 7 && hour <= 18)
+                    ? 0.5 + 0.5 * Math.sin(Math.PI * (hour - 7) / 11)
+                    : 0.05;
+            return sunlight * timeFactor;
+        } catch (Exception e) {
+            // fallback to original logic
+            int hour = LocalDateTime.now().getHour();
+            if (hour >= 7 && hour <= 18) {
+                double peak = Math.sin(Math.PI * (hour - 7) / 11);
+                return 0.5 + 0.5 * peak;
+            }
+            return 0.05;
         }
-        return 0.05; // Lower at night
     }
 
     private double generateKwhForCurrentTime() {
